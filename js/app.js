@@ -12,7 +12,7 @@ const sheet = $('#sheet'), overlay = $('#overlay'), gauge = $('#gauge');
 const sctx = sheet.getContext('2d'), octx = overlay.getContext('2d'), gctx = gauge.getContext('2d');
 
 const app = {
-  manifest: { notebooks: [], pencil: newPencil(), done: false, closing: null },
+  projects: [], texts: {},   // one manifest per agent-filled notebook project
   local: loadLocal(),
   book: 0, page: 1,
   items: [], idx: 0, carry: 0, start: newPencil(), startSharpenings: 0,
@@ -36,30 +36,44 @@ function saveLocal() {
 }
 
 const books = () => [
-  ...app.manifest.notebooks.map((nb) => ({ kind: 'agent', nb, title: nb.title, count: nb.pages.length })),
-  ...app.local.notebooks.map((nb) => ({ kind: 'local', nb, title: nb.title, count: nb.pages.length }))
+  ...app.projects.flatMap((pr) => pr.notebooks.map((nb, i) => ({
+    kind: 'agent', pr, nb, key: `${pr.id}/${nb.id}`, count: nb.pages.length,
+    title: pr.notebooks.length > 1 ? `${pr.title} · ${i + 1}` : pr.title
+  }))),
+  ...app.local.notebooks.map((nb) => ({ kind: 'local', nb, key: nb.id, title: nb.title, count: nb.pages.length }))
 ];
+const stopOf = (b) => b?.pr?.stopAt ?? PENCIL.half;
+const finished = (pr) => pr.done && pr.closing;
 const cur = () => books()[app.book];
 
-async function fetchManifest() {
+// Returns true if anything changed since the last fetch.
+async function fetchProjects() {
   try {
-    const res = await fetch('data/manifest.json', { cache: 'no-store' });
+    const res = await fetch('data/index.json', { cache: 'no-store' });
     if (!res.ok) return false;
-    const text = await res.text();
-    if (text === app.manifestText) return false;
-    app.manifestText = text;
-    app.manifest = JSON.parse(text);
-    return true;
+    const { books: listed } = await res.json();
+    let changed = listed.length !== app.projects.length;
+    const next = [];
+    for (const { id } of listed) {
+      const have = app.projects.find((p) => p.id === id);
+      if (have && finished(have)) { next.push(have); continue; }
+      const r = await fetch(`data/${id}/manifest.json`, { cache: 'no-store' });
+      if (!r.ok) continue;
+      const text = await r.text();
+      if (text !== app.texts[id]) { app.texts[id] = text; changed = true; next.push(JSON.parse(text)); } else next.push(have);
+    }
+    app.projects = next;
+    return changed;
   } catch { return false; }
 }
 
-async function agentPage(nb, n) {
-  const key = `${nb.id}/${pad3(n)}`;
+async function agentPage(b, n) {
+  const key = `${b.key}/${pad3(n)}`;
   if (!app.cache.has(key)) {
     const res = await fetch(`data/${key}.json`, { cache: 'no-store' });
     if (!res.ok) throw new Error(`page ${key} missing`);
     const page = await res.json();
-    const { sim } = runPage(page.ops, page.before, page.seed);
+    const { sim } = runPage(page.ops, page.before, page.seed, { stopAt: stopOf(b) });
     app.cache.set(key, { items: sim.items, start: page.before });
     if (app.cache.size > 12) app.cache.delete(app.cache.keys().next().value);
   }
@@ -121,13 +135,14 @@ function paintChrome() {
   gctx.setTransform(1, 0, 0, 1, 0, 0);
   gctx.clearRect(0, 0, gauge.width, gauge.height);
   gctx.setTransform(g, 0, 0, g, 2 * g, gauge.height / 2);
-  drawGauge(gctx, st, { half: agent });
+  const stopAt = stopOf(cur());
+  drawGauge(gctx, st, { mark: agent ? stopAt : null });
   let sharp = app.startSharpenings;
   for (let i = 0; i < app.idx; i++) if (app.items[i].t === 'x') sharp++;
   $('#gLength').textContent = `${st.length.toFixed(1)} mm`;
   const used = PENCIL.length - st.length;
   $('#gUsed').textContent = agent
-    ? `${used.toFixed(1)} of ${PENCIL.half} mm`
+    ? `${used.toFixed(1)} of ${(PENCIL.length - stopAt).toFixed(1)} mm`
     : `${used.toFixed(1)} mm (${Math.round((used / PENCIL.length) * 100)}%)`;
   $('#gTip').textContent = `${tipWidth(st).toFixed(2)} mm · ${Math.round(sharpness(st) * 100)}% sharp`;
   $('#gEraser').textContent = `${st.eraser.toFixed(1)} mm`;
@@ -167,10 +182,10 @@ async function show(book, page, { flip = true, thenPlay = false } = {}) {
   if (b.kind === 'agent') {
     if (b.count) {
       let got;
-      try { got = await agentPage(b.nb, app.page); } catch { got = { items: [], start: app.manifest.pencil }; }
+      try { got = await agentPage(b, app.page); } catch { got = { items: [], start: b.pr.pencil }; }
       if (token !== app.loadToken) return;
       app.items = got.items; app.start = got.start; app.startSharpenings = got.start.sharpenings ?? 0;
-    } else { app.items = []; app.start = app.manifest.pencil; app.startSharpenings = 0; }
+    } else { app.items = []; app.start = b.pr.pencil; app.startSharpenings = 0; }
   } else {
     const pg = b.nb.pages[app.page - 1];
     app.sim = replayLocal(pg);
@@ -192,7 +207,7 @@ function renderShell() {
   nav.replaceChildren(...list.map((bk, i) => {
     const el = document.createElement('button');
     el.className = i === app.book ? 'on' : '';
-    el.innerHTML = `${escapeHtml(bk.title)} <small>${bk.kind === 'agent' ? 'by the agents' : 'yours'} · ${bk.count}p</small>`;
+    el.innerHTML = `${escapeHtml(bk.title)} <small>${bk.kind === 'agent' ? '' : 'yours · '}${bk.count}p</small>`;
     el.onclick = () => show(i, bk.kind === 'agent' ? 1 : bk.count);
     return el;
   }), Object.assign(document.createElement('button'), { textContent: '+ New notebook', title: 'A blank notebook and a fresh pencil of your own', onclick: addNotebook }));
@@ -202,7 +217,7 @@ function renderShell() {
   $('#tools').hidden = !local;
   $('#gaugeTitle').textContent = local ? 'Your pencil' : 'The pencil';
   $('.talk h2').textContent = local ? 'Your notebook' : 'How the notepad got filled';
-  $('.talk .legend').hidden = local;
+  renderAbout(b);
   $('#pageInput').max = Math.max(1, count); $('#pageInput').value = app.page;
   $('#pageCount').textContent = `of ${Math.max(1, count)}${local ? ` (max ${MAX_PAGES})` : ''}`;
   $('#pageno').textContent = count ? app.page : '';
@@ -212,12 +227,26 @@ function renderShell() {
   $('#next').title = local && app.page >= count ? 'Turn to a new blank page' : 'Next page (→)';
   const blank = $('#blank');
   blank.hidden = !(b?.kind === 'agent' && !count) && !!b;
-  blank.textContent = b ? 'This notepad is still blank. The writer has not put pencil to paper yet.' : 'No notebook yet.';
+  blank.textContent = b ? 'This notepad is still blank. Nobody has put pencil to paper yet.' : 'No notebook yet.';
   renderTranscript();
 }
 
+function renderAbout(b) {
+  const about = $('#about'), legend = $('.talk .legend');
+  about.hidden = legend.hidden = b?.kind !== 'agent';
+  if (about.hidden) return;
+  const pr = b.pr, R = pr.roles, used = PENCIL.length - pr.stopAt;
+  legend.innerHTML = `<span class="who w">${escapeHtml(R.writer.name)}</span> ${escapeHtml(R.writer.does)} <span class="who c">${escapeHtml(R.critic.name)}</span> ${escapeHtml(R.critic.does)}`;
+  const prompts = Object.entries(pr.prompts ?? {}).map(([role, text]) =>
+    `<details><summary>The prompt given to ${escapeHtml(R[role]?.name ?? role)}</summary><pre>${escapeHtml(text)}</pre></details>`).join('');
+  about.innerHTML = `<h2>${escapeHtml(pr.title)}</h2>
+    <p>${escapeHtml(pr.about)}</p>
+    <p class="facts">Ends when ${used.toFixed(used % 1 ? 2 : 0)} mm of the ${PENCIL.length} mm pencil is used (${Math.round((used / PENCIL.length) * 100)}%).${pr.models ? ` Agents: ${escapeHtml(pr.models)}.` : ''}${pr.started ? ` ${escapeHtml(pr.started)}.` : ''}</p>
+    ${prompts}`;
+}
+
 function renderTranscript() {
-  const b = cur(), ol = $('#transcript');
+  const b = cur(), ol = $('#transcript'), R = b?.pr?.roles;
   if (!b || b.kind === 'local') {
     ol.innerHTML = `<p class="empty">This notebook is yours. Draw on the page with your mouse or finger: the tip dulls as you go, the pencil shortens when you sharpen it, and the eraser wears away. Nobody is commenting here.</p>`;
     return;
@@ -230,26 +259,28 @@ function renderTranscript() {
     li.dataset.page = p.n;
     const stats = `${p.stats.strokeM.toFixed(1)} m of line · ${p.stats.used.toFixed(1)} mm of pencil · sharpened ${p.stats.sharpenings}×`;
     li.innerHTML = `<h3>Page ${p.n}<span>${stats}</span></h3>
-      <div class="msg w"><span class="who w">Writer, before the page</span>${escapeHtml(p.writer)}</div>
-      ${p.critic ? `<div class="msg c${p.n === app.page && pending ? ' pending' : ''}"><span class="who c">Critic, after looking at it</span>${escapeHtml(p.critic)}</div>` : `<div class="msg c pending"><span class="who c">Critic</span>…still looking at the page.</div>`}`;
+      <div class="msg w"><span class="who w">${escapeHtml(R.writer.name)}, ${escapeHtml(R.writer.cue)}</span>${escapeHtml(p.writer)}</div>
+      ${p.critic ? `<div class="msg c${p.n === app.page && pending ? ' pending' : ''}"><span class="who c">${escapeHtml(R.critic.name)}, ${escapeHtml(R.critic.cue)}</span>${escapeHtml(p.critic)}</div>` : `<div class="msg c pending"><span class="who c">${escapeHtml(R.critic.name)}</span>…</div>`}`;
     li.onclick = () => { if (p.n !== app.page) show(app.book, p.n); };
     return li;
   }));
-  const lastBook = app.manifest.notebooks.at(-1) === b.nb;
-  if (lastBook && app.manifest.closing) {
+  const lastBook = b.pr.notebooks.at(-1) === b.nb;
+  if (lastBook && b.pr.closing) {
     const li = document.createElement('li');
-    li.innerHTML = `<h3>Afterword</h3><div class="msg w closing"><span class="who w">Writer, with half a pencil left</span>${escapeHtml(app.manifest.closing)}</div>`;
+    li.innerHTML = `<h3>Afterword</h3><div class="msg w closing"><span class="who w">${escapeHtml(R.writer.name)}, ${escapeHtml(R.writer.closingCue ?? 'at the end')}</span>${escapeHtml(b.pr.closing)}</div>`;
     ol.append(li);
-  } else if (lastBook && !app.manifest.done) {
+  } else if (lastBook && !b.pr.done) {
     const li = document.createElement('li');
-    li.innerHTML = `<p class="empty">The pencil is still longer than ${PENCIL.half} mm, so the agents are still at it. This page updates as they go.</p>`;
+    li.innerHTML = `<p class="empty">The pencil is still longer than ${b.pr.stopAt} mm, so the agents are still at it. This page updates as they go.</p>`;
     ol.append(li);
   }
-  // scroll the list itself, never the whole document
-  const on = ol.querySelector('li.on');
-  if (on && ol.scrollHeight > ol.clientHeight) {
-    const top = on.offsetTop - ol.offsetTop;
-    if (top < ol.scrollTop || top + on.offsetHeight > ol.scrollTop + ol.clientHeight) ol.scrollTop = top - 8;
+  // scroll the side panel itself, never the whole document
+  const on = ol.querySelector('li.on'), side = $('.side');
+  if (on && side.scrollHeight > side.clientHeight) {
+    // the gauge is pinned to the top of the panel, so "visible" means below it
+    const pinned = $('.gauge').offsetHeight;
+    const top = on.getBoundingClientRect().top - side.getBoundingClientRect().top + side.scrollTop;
+    if (top < side.scrollTop + pinned || top + Math.min(on.offsetHeight, 200) > side.scrollTop + side.clientHeight) side.scrollTop = top - pinned - 8;
   }
 }
 
@@ -416,17 +447,18 @@ addEventListener('resize', layout);
 
 // While the agents are still working, pick up new pages and comments as they land.
 setInterval(async () => {
-  if (app.manifest.done && app.manifest.closing) return;
-  const id = cur()?.nb.id;
-  if (!(await fetchManifest())) return;
-  // a notebook appearing in the manifest shifts the tab order: stay on the same notebook
-  const at = books().findIndex((b) => b.nb.id === id);
+  if (app.projects.length && app.projects.every(finished)) return;
+  const id = cur()?.key;
+  if (!(await fetchProjects())) return;
+  // a notebook appearing shifts the tab order: stay on the same notebook
+  const at = books().findIndex((b) => b.key === id);
   if (at >= 0) app.book = at;
   if (!cur() || (cur().kind === 'agent' && !app.playing && !app.items.length)) show(app.book, 1); else renderShell();
 }, 6000);
 
-await fetchManifest();
+await fetchProjects();
 layout();
-// ?page=7 opens on a page; ?play starts the pencil straight away
+// ?book=half-a-pencil picks a notebook, ?page=7 a page; ?play starts the pencil straight away
 const params = new URLSearchParams(location.search);
-show(0, +params.get('page') || 1, { flip: false, thenPlay: params.has('play') });
+const wanted = Math.max(0, books().findIndex((b) => b.pr?.id === params.get('book')));
+show(wanted, +params.get('page') || 1, { flip: false, thenPlay: params.has('play') });

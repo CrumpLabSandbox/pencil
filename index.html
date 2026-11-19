@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Half a Pencil</title>
+  <title>Pencil</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <header class="top">
     <div class="brand">
-      <h1>Half a Pencil</h1>
-      <p>One pencil, one notepad, two Claude agents. It stops when half the pencil is gone.</p>
+      <h1>Pencil</h1>
+      <p>A simulated pencil that wears down as it writes. Each notebook was filled by a pair of Claude agents.</p>
     </div>
     <nav class="books" id="books" aria-label="Notebooks"></nav>
   </header>
@@ -73,9 +73,11 @@
         </div>
       </section>
 
+      <section class="about" id="about" hidden></section>
+
       <section class="talk">
         <h2>How the notepad got filled</h2>
-        <p class="legend"><span class="who w">Writer</span> says what it will put on the page, then does it. <span class="who c">Critic</span> looks at the page and argues for using more pencil.</p>
+        <p class="legend"></p>
         <ol id="transcript"></ol>
       </section>
     </aside>

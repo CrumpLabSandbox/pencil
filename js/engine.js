@@ -319,6 +319,15 @@ function layoutText(op, cursor, rng, warn) {
     }
     y += lh; written++;
   }
+  if (op.rot) {
+    // tilt the whole block about its starting point, for words jotted at an angle
+    const a = (op.rot * Math.PI) / 180, c = Math.cos(a), s = Math.sin(a), oy = op.y ?? cursor;
+    for (const st of strokes) for (const p of st) {
+      const dx = p[0] - x0, dy = p[1] - oy;
+      p[0] = x0 + dx * c - dy * s; p[1] = oy + dx * s + dy * c;
+    }
+    return { strokes, cursor, lines: written };
+  }
   return { strokes, cursor: y, lines: written };
 }
 

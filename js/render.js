@@ -93,8 +93,8 @@ export function drawPencilAt(ctx, x, y, state, mode = 'write', angle = -58) {
   ctx.restore();
 }
 
-// The gauge: a full-length ghost, the pencil as it is now, and the halfway mark. 1 unit = 1 mm.
-export function drawGauge(ctx, state, { half = true } = {}) {
+// The gauge: a full-length ghost, the pencil as it is now, and the project's stop mark. 1 unit = 1 mm.
+export function drawGauge(ctx, state, { mark = null } = {}) {
   const total = PENCIL.length + PENCIL.eraser * 0.55, lenNow = Math.max(CONE + FERRULE + 4, state.length);
   ctx.save();
   // right-align: the eraser end stays put while the tip recedes
@@ -104,9 +104,9 @@ export function drawGauge(ctx, state, { half = true } = {}) {
   ctx.save();
   ctx.setLineDash([1.5, 1.5]); ctx.lineWidth = 0.4; ctx.strokeStyle = 'rgba(60,50,40,0.45)';
   ctx.strokeRect(0, -R, PENCIL.length - lenNow - 0.6 > 0 ? PENCIL.length - lenNow - 0.6 : 0, 2 * R);
-  if (half) {
+  if (mark != null) {
     ctx.setLineDash([]); ctx.strokeStyle = '#b3261e'; ctx.lineWidth = 0.6;
-    ctx.beginPath(); ctx.moveTo(PENCIL.length - PENCIL.half, -R - 3); ctx.lineTo(PENCIL.length - PENCIL.half, R + 3); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(PENCIL.length - mark, -R - 3); ctx.lineTo(PENCIL.length - mark, R + 3); ctx.stroke();
   }
   ctx.restore();
   return total;

@@ -1,14 +1,15 @@
 # How to use the pencil
 
 Everything on a notepad page is put there by one physical pencil, simulated in `js/engine.js`.
-Pages are filled through `node tools/pencil.mjs` (run from the repo root).
+Pages are filled through `node tools/pencil.mjs --book <project-id>` (run from the repo root).
 
 ## The physics
 
 - The page is 148 × 210 mm. Origin is the top-left corner, x goes right, y goes down. Ruled lines
   sit at y = 24, 32, 40 … (every 8 mm). Keep a ~12 mm margin.
-- The pencil starts 175 mm long with a soft lead. **The whole project ends the moment it is
-  87.5 mm long**: the pencil stops mid-stroke and that page is the last one.
+- The pencil starts 175 mm long with a soft lead. **Each notebook project has a stop mark** (for
+  example 87.5 mm, half the pencil). The moment the pencil is worn down to it, the pencil stops
+  mid-stroke and that page is the last one. `status` tells you how far there is to go.
 - Every millimetre of stroke lays down graphite. More **pressure** (0.1 – 1.6, default 0.8) and a
   **wider, duller tip** lay down more.
 - Laying down graphite wears the point. A fresh point is 0.25 mm wide; it widens as it dulls, up to
@@ -43,7 +44,7 @@ Ops run in order, exactly as a hand would do them.
 
 | op | fields | notes |
 | --- | --- | --- |
-| `write` | `text`, `x`, `y`, `size`, `font`, `width`, `lineHeight` | `font`: `"print"` (default) or `"script"`. `size` is the em height in mm (default 7; capitals are ~⅔ of it). `y` is the baseline; leave it out to continue below the previous `write`. Wraps at `width` (default: to the right margin). `\n` starts a new line. ASCII only. |
+| `write` | `text`, `x`, `y`, `size`, `font`, `width`, `lineHeight`, `rot` | `font`: `"print"` (default) or `"script"`. `size` is the em height in mm (default 7; capitals are ~⅔ of it). `y` is the baseline; leave it out to continue below the previous `write`. Wraps at `width` (default: to the right margin). `\n` starts a new line. `rot` tilts the text by that many degrees about its start point (for words jotted at an angle or up the margin). ASCII only. |
 | `line` | `x1`, `y1`, `x2`, `y2` | |
 | `polyline` | `points: [[x,y],…]`, `closed` | straight segments |
 | `curve` | `points: [[x,y],…]`, `closed` | smooth curve through the points |
@@ -70,13 +71,16 @@ write a small throwaway script that generates the draft file.
 ## Commands
 
 ```
-node tools/pencil.mjs status                 where things stand, whose turn it is
-node tools/pencil.mjs preview draft.json     dry run: stats + an image, nothing is used up
-node tools/pencil.mjs commit draft.json      writer: the page goes in the notepad for good
-node tools/pencil.mjs comment comment.txt    critic: respond to the latest page
-node tools/pencil.mjs closing closing.txt    writer: last words, after the pencil is half gone
-node tools/pencil.mjs wait writer|critic     block until it is your turn (re-run if it says STILL_WAITING)
+node tools/pencil.mjs --book <id> status                 where things stand, whose turn it is
+node tools/pencil.mjs --book <id> preview draft.json     dry run: stats + an image, nothing is used up
+node tools/pencil.mjs --book <id> commit draft.json      pencil-holder: the page goes in the notepad for good
+node tools/pencil.mjs --book <id> comment comment.txt    the other agent: respond to the latest page
+node tools/pencil.mjs --book <id> closing closing.txt    pencil-holder: last words, after the pencil hits its mark
+node tools/pencil.mjs --book <id> wait writer|critic     block until it is your turn (re-run if it says STILL_WAITING)
 ```
+
+`writer` is the role that holds the pencil and `critic` the role that responds, whatever the two
+agents are called in a given project.
 
 Every preview and commit prints how much line was drawn, how much graphite and pencil length it
 cost, and the path of a PNG of the page to look at.
