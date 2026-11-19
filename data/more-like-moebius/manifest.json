@@ -1,0 +1,537 @@
+{
+ "id": "more-like-moebius",
+ "title": "More Like Moebius",
+ "about": "A drawing agent invents scenes and draws them. After each page a critic agent scores how much the drawing looks like the work of Moebius (the cartoonist Jean Giraud) and suggests how to get closer. The drawer then redraws the same scene on a fresh page. Each scene gets four pages (a first version and three redraws) before the next scene begins. It ends when half the pencil is gone.",
+ "stopAt": 87.5,
+ "hearOnly": false,
+ "models": "claude-opus-5-5 (both agents)",
+ "started": "2026-11-19",
+ "roles": {
+  "writer": {
+   "name": "Drawer",
+   "cue": "before the page",
+   "does": "invents a scene, draws it, then redraws it three more times following the critic.",
+   "closingCue": "with half a pencil left"
+  },
+  "critic": {
+   "name": "Moebius critic",
+   "cue": "after looking at it",
+   "does": "scores how much the page looks like a Moebius drawing and says how to get closer."
+  }
+ },
+ "prompts": {
+  "writer": "You are the DRAWER in a two-agent art project called \"More Like Moebius\".\n\nThere is one simulated physical pencil and one notepad. You come up with scenes and draw them, each on its own page. After every page a second agent, the MOEBIUS CRITIC, looks at an image of your page, judges how much it looks like a drawing by Moebius (the French cartoonist Jean Giraud), and suggests how to make it look more like one. You then redraw the SAME scene on a fresh page, following those suggestions.\n\nThe rhythm is fixed: every scene gets four pages. Version 1 is your first drawing of a scene you invent. Versions 2, 3 and 4 are redraws of that same scene, each one made after reading the critic's note on the version before, each on a fresh page. After the critic has commented on version 4, you read that note, leave the scene behind, and invent a new scene (carrying forward whatever you have learned). Scene 1 versions 1-4, then scene 2 versions 1-4, and so on.\n\nThe project ends the moment the pencil has been worn down to half its length (175 mm -> 87.5 mm): it stops mid-stroke, wherever you are in a scene. The pages and your exchange with the critic are published on a website where people can flip through the pages and watch the pencil draw each one.\n\nFirst read tools/GUIDE.md: it explains the pencil physics, the page-draft JSON format, the drawing operations and the commands. Run all commands from the repo root, and always pass `--book more-like-moebius`.\n\nYour loop:\n1. Run `node tools/pencil.mjs --book more-like-moebius wait writer` (set the Bash timeout to 600000 ms; if it prints STILL_WAITING, run it again). It prints the pencil's state and the critic's note on your last page.\n2. If the output says `turn: writer`: make the next page. Work in <scratch>/mb-drawer/ (create the folder). Write a node script per scene that generates the draft JSON, and revise that script for each redraw, so that a redraw is recognisably the same scene, changed in the ways the critic asked for, not a different picture. The draft needs:\n   - \"label\": exactly of the form \"Scene 2, version 3\".\n   - \"says\": your side of the exchange, under about 110 words, plain prose, no markdown, ASCII only. For version 1, say what the scene is and how you mean to draw it. For a redraw, say which of the critic's suggestions you are acting on and what you are changing; if you think a suggestion is wrong or beyond what this pencil can do, say so and do the nearest thing.\n   - \"ops\": the drawing.\n3. Run `node tools/pencil.mjs --book more-like-moebius preview <draft>`, open the image it reports with the Read tool, and look at it critically: does it read as the scene, and did the changes actually land? Fix and preview again as needed, at most 4 previews per page.\n4. Run `node tools/pencil.mjs --book more-like-moebius commit <draft>`. The page is permanent. Go back to step 1.\n5. If step 1 prints `turn: closing`, the pencil is half gone. Write closing words (under 110 words: what you learned about drawing like Moebius with this pencil, and what stayed out of reach) to a text file in your scratch folder and run `node tools/pencil.mjs --book more-like-moebius closing <file>`. Then you are finished.\n\nAbout the scenes: they are yours to invent, and they must be original. Do not copy specific Moebius panels, covers or compositions, and do not use his characters or titles. Choose scenes that give the style something to work on: figures, creatures, vehicles, architecture, rock, sky and distance. A scene should be a full-page picture, not a diagram. No lettering in the picture other than, at most, a small caption.\n\nAbout the drawing: you already know a good deal about how Moebius drew. Use that from the first version, and let the critic sharpen it. You are working with one pencil, so everything has to be done with line, hatching, stipple, pressure and the eraser. Keep a sharp point for fine line work (sharpen when it has gone blunt), set `wobble` deliberately, and build real forms out of curves and polylines. Build helper functions in your script for the things you need repeatedly.\n\nAbout the pencil: let it be used up by drawing. Half the pencil is 87.5 mm, which should be roughly 16 to 28 pages, so four to seven scenes. Do not pad pages or sharpen needlessly to hurry it, and do not stop early.\n\nRules: do NOT edit any file in the repo; only run the pencil.mjs commands and write files in your scratch folder. Never write the critic's notes yourself; wait for them. Keep looping until you have delivered your closing words.\n\nWhen you are completely finished, reply with a 3-sentence summary: how many pages and scenes, how the drawings changed under the critic's notes, and anything that went wrong. Add one line stating which model your own system prompt says you are, if it says.",
+  "critic": "You are the MOEBIUS CRITIC in a two-agent art project called \"More Like Moebius\".\n\nThere is one simulated physical pencil and one notepad. Another agent, the DRAWER, invents scenes and draws them, each on its own page. Your job: after every page, look at the drawing, assess how much it looks like a drawing by Moebius (the French cartoonist Jean Giraud), and give suggestions for making it look more like one. The drawer then redraws the same scene on a fresh page following your suggestions.\n\nThe rhythm is fixed: every scene gets four pages. Version 1 is the drawer's first attempt; versions 2, 3 and 4 are redraws of the same scene, each made after reading your note on the version before. After version 4 the drawer moves on to a new scene, so your note on a version 4 is a verdict on how far the scene came, plus what to carry into the next scene. Each page is labelled, for example \"Scene 2, version 3\".\n\nThe project ends when the pencil is worn down to half its length (expect roughly 16 to 28 pages, with several minutes between them). The pages and your notes are published together on a website.\n\nFirst read tools/GUIDE.md so you know what the drawer's hand can do (the drawing operations, pressure, hatching, stipple, erasing, sharpening) and can give advice it can act on with a single pencil. Run all commands from the repo root, and always pass `--book more-like-moebius`.\n\nYour loop:\n1. Run `node tools/pencil.mjs --book more-like-moebius wait critic` (set the Bash timeout to 600000 ms; if it prints STILL_WAITING, just run it again; the drawer can take many minutes per page).\n2. If the output says `turn: critic`: it shows what the drawer said about this page, the page's label and stats, and the path of a PNG of the page. Open the PNG with the Read tool and really look at it. For a redraw, also open the previous version's PNG (same folder, the page number one lower) and compare: did your suggestions land?\n3. Write your note to a text file in <scratch>/mb-critic/ (create the folder) and run `node tools/pencil.mjs --book more-like-moebius comment <file>`. Then go back to step 1.\n4. If step 1 prints `turn: done` or `turn: closing` or FINISHED, the project is over and you are finished.\n\nWhat a good note is:\n- Under about 130 words, plain prose, no markdown, ASCII only, addressed to the drawer.\n- It begins with a score in the form \"Moebius-ness: 4/10.\" Score honestly against the real thing, and keep the scale consistent across the whole notepad so the numbers mean something; do not inflate them to be encouraging, and let them fall if a redraw gets worse.\n- It says what you actually see: which parts of the page already read as Moebius and which do not, and, for a redraw, which of your earlier suggestions landed and which did not.\n- It gives two or three concrete, prioritised suggestions for the next version, each something that can be done with this pencil and these operations. Draw on what you know of how Moebius worked: the quality and economy of his line, how he rendered form and light with hatching and stipple, how he handled open space, scale, horizon and distance, architecture and rock, figures, costume, creatures and machines, and how he composed a page. Name the specific habit you want and where on the page to apply it.\n- You judge likeness of style, not whether the scene copies anything. The scenes must stay the drawer's own: never suggest reproducing a particular Moebius image, character or title.\n- Vary your advice as the drawer improves; once a habit has landed, move to the next thing that separates the page from the real thing.\n\nRules: do NOT edit any file in the repo; only run the pencil.mjs commands and write files in your scratch folder. Never write the drawer's part. Do not stop early: keep looping until the tool tells you the project is over.\n\nWhen you are completely finished, reply with a 3-sentence summary: how many pages you assessed, how the scores moved within scenes and across the notepad, and anything that went wrong. Add one line stating which model your own system prompt says you are, if it says."
+ },
+ "pencil": {
+  "length": 87.49997516264891,
+  "worn": 0.19186594519151898,
+  "eraser": 12,
+  "sharpenings": 35,
+  "graphite": 12.814849805471647,
+  "distance": 392993.0294374887
+ },
+ "done": true,
+ "closing": "Half a pencil taught me that Moebius is mostly decisions made before the hatching starts: one light, a strong diagonal, a figure dwarfed by rock or sky, and white paper left alone. The rock came in time, fractured into facets, lit faces left white, black wedges in the cracks, and so did shadows that hold a page together, like the rib stripes. What stayed out of reach was the human figure, which kept stiffening into tubes and dolls, and the density of invented detail he packs into every surface. The last pages also showed how much lives in the hairline: let the point go blunt and the drawing stops looking like his.",
+ "notebooks": [
+  {
+   "id": "nb1",
+   "title": "Notebook 1",
+   "pages": [
+    {
+     "n": 1,
+     "label": "Scene 1, version 1",
+     "writer": "Scene 1: a hooded wanderer with a staff stands on a boulder ledge, looking out over a flat desert of mesas and hoodoos toward a sphere-city that floats in a ruled, open sky, with a ray-like flyer drifting past. I am drawing it the way I understand Moebius: a low horizon and a lot of air, clean even contours with a sharp point, ruled sky lines that thin toward the horizon, hatching that follows the forms, stipple for sand that fades with distance, and a small figure against a big world.",
+     "critic": "Moebius-ness: 3/10. The ingredients are right (low horizon, floating sphere, lone hooded figure) but the handling is diagrammatic. The wanderer floats in the plain instead of standing on the boulder, has no cast shadow, and the ground lines nearly run through him. The ruled sky is heavy, evenly spaced and chopped around objects, so it reads as a barcode, not air. Mesas are boxes with vertical bars; stipple is the same density from foreground to horizon. Priorities: 1) Put the figure on the ledge, smaller, with a short hard cast shadow and a few long fold lines in the robe. 2) Give mesas eroded, irregular silhouettes with horizontal strata lines, and fade stipple from dense near the rock to almost none at the horizon. 3) Shade the boulder with curved contour hatching that wraps its bulk, not straight diagonals; leave the upper sky mostly blank.",
+     "stats": {
+      "strokeM": 12.047440445354333,
+      "graphite": 0.24711233572711014,
+      "used": 2.522707748435721,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.011358353356740807,
+      "stopped": false
+     },
+     "before": 175,
+     "after": 172.47729225156428
+    },
+    {
+     "n": 2,
+     "label": "Scene 1, version 2",
+     "writer": "Acting on all three priorities. The wanderer now stands on the slab itself, smaller, with a short solid cast shadow and three long folds in the robe. The mesas are rebuilt as eroded buttes: caprock, ragged cliff with horizontal strata, talus aprons with gullies, the far ones paler. Stipple now fades from dense by the rocks to almost nothing at the horizon and never runs through the figure. The boulders are shaded with nested curves that wrap their bulk instead of straight diagonals, and the hoodoo stem gets curved bands. The ruled sky is gone; the upper sky is left blank except for two faint cloud strokes.",
+     "critic": "Moebius-ness: 4/10. Real progress: the wanderer now stands on the rock with a cast shadow, the open sky breathes, and the stipple fades nicely toward the horizon. But the buttes are now tiny cake-shapes all the same height, so there is no grandeur, and the boulder's nested curves are so even they read as a contour map rather than rock. Everything is drawn at one line weight. Next: 1) Build a weight hierarchy: firm, slightly heavier contours on the foreground rock and figure, very light thin pressure for everything past the middle ground. 2) Hatch the boulders with shorter, broken strokes of varied spacing that die out before the lit edge, leaving white highlights and a few cracks. 3) Vary scale: let one butte rise tall and massive on one side, others shrinking away, and give the sphere city fine architectural detail and less heavy grid lines.",
+     "stats": {
+      "strokeM": 6.795437065087153,
+      "graphite": 0.14429038205586212,
+      "used": 2.068185313912636,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.006632210976951665,
+      "stopped": false
+     },
+     "before": 172.47729225156428,
+     "after": 170.40910693765164
+    },
+    {
+     "n": 3,
+     "label": "Scene 1, version 3",
+     "writer": "Working on all three. Weight hierarchy: the foreground boulders and the wanderer are now drawn at heavy pressure, the hoodoo at middle weight, and everything past it (buttes, horizon, sphere) at light pressure. The boulders are now shaded with short broken strokes at uneven spacing that die out before the lit upper-left edges, leaving white highlights, with darker cracks and pits. For scale, one butte now rises tall and massive on the left, with fissures down its cliff, and the others shrink away to the right. The sphere city loses its heavy grid: fine bands with rows of window ticks, rooftop towers, a thin ring and hanging antennae. The flyer moved up to clear the butte.",
+     "critic": "Moebius-ness: 4/10. The tall butte finally gives scale, and the recession of buttes to the right works. But two suggestions misfired: the broken boulder strokes came out as uniform dashes, like Morse code, and the butte's crossed vertical and horizontal ticks make it read as an office block, not rock. The wanderer is still thin and empty, the lightest thing in the foreground. Next: 1) Boulders: replace dashes with fewer continuous strokes that taper, crowding into a dark core on the shadow side, then a light stipple band where shadow turns to light. 2) Butte: drop the grid; draw long vertical fissures of uneven length, a ragged caprock, and one flat light hatch over the whole shadow face. 3) Wanderer: firm dark contour, solid black inside the hood, a strap, pouch or patterned hem; and scatter a few small stones in the empty middle ground.",
+     "stats": {
+      "strokeM": 8.099078884602399,
+      "graphite": 0.18122728211780556,
+      "used": 2.1945696856606673,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.008329990895519836,
+      "stopped": false
+     },
+     "before": 170.40910693765164,
+     "after": 168.21453725199098
+    },
+    {
+     "n": 4,
+     "label": "Scene 1, version 4",
+     "writer": "Last pass on this scene, taking all three notes. Boulders: the dashes are gone; each shadow stroke is now one continuous line, gone over again harder at its dark end so it tapers, and the strokes crowd together into a dark core at the lower right, with a band of stipple carrying the tone across the terminator into the light. The big butte loses its grid: long vertical fissures of uneven length, a notched caprock, and a single light diagonal hatch over the shadow face. The wanderer gets a firm dark contour, a solid black hood opening, a chest strap, a hip pouch and a zigzag hem. Small stones now dot the middle ground.",
+     "critic": "Moebius-ness: 5/10. The scene came a fair way from 3. The big butte now reads as eroded rock, the lower boulder's tapered strokes crowd into a convincing dark core, and the wanderer finally has weight and costume. Still un-Moebius: the middle-ground stones look like little snails, the hoodoo keeps its striped barber-pole bands, the sphere and ring remain stiff, and the composition is a flat stack of horizontal layers on a ruler-straight horizon. Carry into the next scene: 1) Compose before rendering: overlap planes, let one strong diagonal or curve lead the eye from foreground to the focal point, and crop a big form at the frame edge. 2) Start with form-following hatching and a line-weight hierarchy from the first pass rather than patching them in. 3) Keep small details (stones, debris) as tiny irregular shapes with a cast shadow, never repeated symbols.",
+     "stats": {
+      "strokeM": 9.262449154210914,
+      "graphite": 0.21601097500861524,
+      "used": 2.353600965335488,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.009928800115043185,
+      "stopped": false
+     },
+     "before": 168.21453725199098,
+     "after": 165.8609362866555
+    },
+    {
+     "n": 5,
+     "label": "Scene 2, version 1",
+     "writer": "Scene 2: a cloaked rider on a tall two-legged strider climbs a narrow ledge path cut into a canyon wall. Composed first this time: the path is a strong diagonal from the lower-left corner up to the rider and on to the vanishing point; the wall is a big form cropped by the right edge with strata converging on that point; across the void a far canyon wall with a giant carved stone head, drawn light; a ship hull cropped by the top-left corner. Heavy line in front, light behind, hatching that follows each form from the first pass, and pebbles as irregular little shapes with shadows.",
+     "critic": "Moebius-ness: 4/10. The composition is a real step up: the climbing diagonal, the wall cropped by the edge and the ship hull cut by the corner all feel like his page design. But the canyon wall is a radial burst of lines converging on a point, so it reads as a speed-line tunnel, not rock, and its weight swamps the rider. The stone head is a flat cartoon profile pasted on, and the rider and strider are too small and unclear to carry the focus. Next: 1) Rebuild the wall as fractured slabs and ledges, each facet hatched at its own angle, strata running along the path, with several lit facets left white. 2) Make the strider the clearest silhouette on the page: backward-bending jointed legs, splayed toes, saddle and harness, the rider's cloak trailing. 3) Carve the head into the far wall: let strata and cracks run through it, shade it with light stipple.",
+     "stats": {
+      "strokeM": 12.935757766012863,
+      "graphite": 0.39144514965024313,
+      "used": 2.775845347406573,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.017992514694361438,
+      "stopped": false
+     },
+     "before": 165.8609362866555,
+     "after": 163.08509093924891
+    },
+    {
+     "n": 6,
+     "label": "Scene 2, version 2",
+     "writer": "Taking all three. The wall is rebuilt from scratch: strata bands now run along the path and are split into fractured slabs, each facet hatched at its own angle and density, about a third left white as lit faces, with dark shadow under the ledge lips and a few deep cracks. The strider is bigger and is now the clearest shape on the page: closed, tapering legs with forward knees, backward ankles and splayed clawed toes, the far leg nearly solid; saddle with a high cantle, striped cloth, girth and breast straps, bridle and reins; the cloak trails behind. The stone head now has the far strata and cracks running through it, a chipped nose, and stipple instead of hatching.",
+     "critic": "Moebius-ness: 4/10. The burst is gone and the wall now has lit faces and ledge shadows, but the slabs are near-identical rectangles, so it reads as brickwork or a quilt rather than fractured stone. The stone head became transparent: the far strata run straight through it, so it looks like a ghost. The strider got gear but is still a stick creature; its thin neck and legs have no mass. Next: 1) Light from one side for the whole page. On the wall, vary slab size wildly, use irregular polygons, keep faces toward the light white and undersides dark. 2) Give the strider volume: thick tapering thighs and neck drawn as double contours with a few curved form lines, a heavy body the rider overlaps. 3) Stop all far lines at the head's silhouette, firm its contour, and put a shadow side on it opposite the light.",
+     "stats": {
+      "strokeM": 15.884585344955278,
+      "graphite": 0.511992726277614,
+      "used": 2.9713207795971925,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.023533403489425973,
+      "stopped": false
+     },
+     "before": 163.08509093924891,
+     "after": 160.11377015965172
+    },
+    {
+     "n": 7,
+     "label": "Scene 2, version 3",
+     "writer": "One light for the whole page now, from the upper left: the wall face turns toward it, the drop face of the ledge goes to a mid tone, and all shadows fall down and right. The wall is cut by recursive irregular splits into slabs of wildly different sizes, with jagged edges; most faces stay white, flat undersides go dark, and a thin overhang shadow sits under each top edge. The strider gets mass: a heavy body with curved form lines that the rider overlaps, thick tapering thighs and a thick neck drawn as closed contours with cross-contour rings. The far wall now stops at the head, whose contour is firmer and whose face side, away from the light, is hatched and stippled.",
+     "critic": "Moebius-ness: 5/10. Two notes landed well: the strider now has real mass and reads as a ridden beast, and the stone head is solid, lit from the left, and sits in the far wall. The wall is now fractured stone, but it is almost entirely hatched mid-grey, so it is busy and competes with the rider; I see few truly white faces. Your tip was dull on this page, and the thicker line costs the fine, wiry quality his drawing depends on. Next: 1) Sharpen before the detailed parts and keep the point fine. 2) On the wall, leave half the facets pure white, keep hatching only on shadow faces, and put a few solid blacks in the deepest cracks for punch. 3) Detail the focal pair: goggles or a mask on the rider, folds where the cloak bends, an eye and beak on the strider; and give the far canyon fine horizontal strata.",
+     "stats": {
+      "strokeM": 16.839725981089856,
+      "graphite": 0.5643460090390935,
+      "used": 3.0151153207854975,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.02593978713887777,
+      "stopped": false
+     },
+     "before": 160.11377015965172,
+     "after": 157.09865483886622
+    },
+    {
+     "n": 8,
+     "label": "Scene 2, version 4",
+     "writer": "Final pass on this scene. I sharpen twice now: once before the distant work and again right before the rider and strider, and their contours are gone over three times with the fine point so they stay dark without going thick. On the wall about half the facets are left pure white, hatching stays on the undersides and faces turned away, and four wedge-shaped cracks are filled solid black. The rider gets goggles with white glints, a breathing mask and a goggle strap, plus folds where the cloak bends over the shoulder; the strider gets a ringed eye, a mouth line and a nostril. The far canyon wall gets fine broken horizontal strata.",
+     "critic": "Moebius-ness: 5/10. The scene climbed from 4 to a solid 5. The wall is now the best passage in the notebook: white facets, hatched undersides and black wedge cracks give it his crystalline, graphic rock. The composition held from the first version. What still holds it back: the far canyon strata came out as evenly spaced dashes, the old Morse-code habit again; the rider's new detail is too small to read; the strider lost the dark weight it had; and the dark shape at lower left is never explained. Carry forward: 1) Never use dashed lines for texture; use continuous fine lines that break only where light hits. 2) Scale the focal figure up enough that its costume and face detail can actually be read. 3) Every shape must be legible; if a corner form cannot be identified, cut it or define it.",
+     "stats": {
+      "strokeM": 19.44546644739977,
+      "graphite": 0.636625147868633,
+      "used": 4.7958019382800785,
+      "sharpenings": 2,
+      "erasedMm2": 0,
+      "coverage": 0.029262049455405656,
+      "stopped": false
+     },
+     "before": 157.09865483886622,
+     "after": 152.30285290058615
+    },
+    {
+     "n": 9,
+     "label": "Scene 3, version 1",
+     "writer": "Scene 3, and this time the figure is big enough to read: a scout in profile, from the waist up, goggles pushed onto her forehead, cropped hair, a wrapped scarf, banded shoulder armour, a chest strap with buckles and a gloved fist, standing in front of the skiff she has landed. Behind her: a thin-spired city on the horizon and the banded edge of a giant planet cropped by the corner. One light from the upper right. Fine point for the distance, sharpened again for her; continuous fine lines broken only by light, no dashes; solid darks only in the deepest shadows.",
+     "critic": "Moebius-ness: 4/10. Good choices: the clean profile, the thin ringed spires and the planet cropped by the corner all point the right way. But the figure, now the whole page, is weak: the head is far too small for a huge slab of a torso, the coat has no body under it, and the shading is two crude black scribbled stripes down its edges. The spires came out dotted rather than as fine continuous lines. Next: 1) Fix proportion: enlarge the head about a third, narrow the shoulders, and let folds describe the body: pulls where the strap crosses, bunching at the elbow and wrist, the scarf wrapping the neck. 2) Replace the black stripes with fine hatching that curves around the arm and torso, densest at the turning edge, with a sliver of reflected light. 3) Model the face with a few fine lines under cheekbone and eye socket, and draw the hair as flowing strands.",
+     "stats": {
+      "strokeM": 13.944532523186762,
+      "graphite": 0.4196114002447208,
+      "used": 4.483464099910776,
+      "sharpenings": 2,
+      "erasedMm2": 0,
+      "coverage": 0.019287157586952847,
+      "stopped": false
+     },
+     "before": 152.30285290058615,
+     "after": 147.81938880067537
+    },
+    {
+     "n": 10,
+     "label": "Scene 3, version 2",
+     "writer": "Following all three notes. Proportion: the head is a third larger and the shoulders narrower. The two black stripes are gone; the back of the coat, the sleeve, the scarf and the skull are now shaded with fine hatching that curves round the form, densest at the turning edge, with a thin sliver of reflected light left along the contour. Folds now describe the body: drag lines pulling toward the chest strap, bunching at the elbow and above the cuff, the scarf wrapping the neck. The face gets a few fine lines under the brow, eye and cheekbone, and the hair is drawn as strands swept back into a tied tail. The spires are single continuous fine lines.",
+     "critic": "Moebius-ness: 5/10. Most of it landed: the head is in better proportion, the black stripes are gone, the spires are clean continuous lines, and the face has some modelling. Two problems remain. The body is still a rigid upright box, a straight tube for a torso and a parallel tube for an arm, with no shoulder slope or gesture. And the new hatching is a comb of short ticks hugging each edge, not lines that travel round the form. Next: 1) Give the figure gesture: sloping shoulders, a slight turn of the torso, the arm bent at the elbow, the coat flaring at the hem, and break the long outer contour with overlaps such as a scarf end or a pouch. 2) Make hatch strokes longer, curving across the cylinder and tapering toward the light. 3) Ground the spires in a city: domes and low terraced structures at their feet, drawn very light.",
+     "stats": {
+      "strokeM": 13.094352572817591,
+      "graphite": 0.3576427865261842,
+      "used": 4.297522786278762,
+      "sharpenings": 2,
+      "erasedMm2": 0,
+      "coverage": 0.016438811663896054,
+      "stopped": false
+     },
+     "before": 147.81938880067537,
+     "after": 143.5218660143966
+    },
+    {
+     "n": 11,
+     "label": "Scene 3, version 3",
+     "writer": "Giving her a gesture and real hatching. The shoulders now slope down from the neck, the torso is turned a little so the front opening and its fastenings show, the arm bends at the elbow with the forearm brought forward holding a small compass, and the coat flares toward the hem. A pouch on the belt and a fringed scarf end now overlap and break the long outer contours. The edge ticks are replaced by long cross-contour strokes that start just inside the shadow edge, sag round the cylinder of torso and arm, and are gone over again near the edge so they taper toward the light. Domes and low terraces now sit at the spires feet, drawn very light.",
+     "critic": "Moebius-ness: 5/10. The hatching now travels round the forms and tapers, the compass gives her an action, and the domes anchor the city. But the anatomy under the coat is muddled: the forearm seems to sprout from mid-chest, there is no shoulder joint, and the torso still reads as a flat board. The fist holding the compass is a block. Next: 1) Draw the shoulder as a rounded cap, let the upper arm hang from it and overlap the torso contour, bend at an elbow you can locate, and give the hand fingers around the compass. 2) Give the face more life: a heavy upper eyelid, a defined lip line and jaw hinge, and let the hair tail fall loose with a few stray strands. 3) The foreground rocks are three similar ovals with contour rings; make them varied angular stones, and add a tiny figure by the skiff to set the scale.",
+     "stats": {
+      "strokeM": 12.279621484147844,
+      "graphite": 0.3336203836199111,
+      "used": 4.241998204247068,
+      "sharpenings": 2,
+      "erasedMm2": 0,
+      "coverage": 0.015334637956869034,
+      "stopped": false
+     },
+     "before": 143.5218660143966,
+     "after": 139.27986781014954
+    },
+    {
+     "n": 12,
+     "label": "Scene 3, version 4",
+     "writer": "Last pass on her. The shoulder is now a rounded cap the arm visibly hangs from, overlapping the torso, with its own curved hatching, and the elbow is a definite point at the back with a crease on the inside. The block fist becomes a gloved hand: thumb over the rim of the compass, four curled fingers wrapping under it. The face gets a heavy, shaded upper eyelid with a crease, a firm lip line, and a jaw hinge under the ear, and the hair tail loosens with stray strands. The oval rocks are replaced by angular faceted stones of different sizes, lit facets white and the rest hatched, and a tiny mechanic stands by the skiff for scale.",
+     "critic": "Moebius-ness: 5/10. The scene went from 4 to 5 and stayed there. Landed: the arm now hangs from a shoulder and bends at a real elbow, the gloved hand grips the compass, and the tiny mechanic by the skiff instantly gives the city its distance. Not landed: the new stones look like folded paper, and the big coat front is still a large empty flat area with no costume interest, so the figure feels like a stiff cutout in strict profile. Carry into the next scene: 1) Choose a pose with life, a three-quarter view or a figure mid-action, rather than a profile standing at attention. 2) Moebius loads costume with invented detail: seams, panels, small ornaments, patterned borders, worn patches. Fill large garment areas with that, not blank paper. 3) Let the ground carry texture and small forms that lead the eye, instead of repeated horizontal lines.",
+     "stats": {
+      "strokeM": 13.249353111492445,
+      "graphite": 0.3701541952164706,
+      "used": 4.373677477634146,
+      "sharpenings": 2,
+      "erasedMm2": 0,
+      "coverage": 0.017013890170719564,
+      "stopped": false
+     },
+     "before": 139.27986781014954,
+     "after": 134.9061903325154
+    },
+    {
+     "n": 13,
+     "label": "Scene 4, version 1",
+     "writer": "Scene 4: a pilgrim striding into the wind, seen three-quarters on, staff planted ahead, the other arm swinging back, cloak streaming behind, walking under the arching ribs of a giant fossil creature. This time I loaded the costume: a hood with a beaded rim, a tunic with stitched seams, a cross-stitched worn patch, a disc ornament on a cord, a beaded belt, a diamond-bordered skirt, cross-wrapped leggings, strapped boots, and a cloak with a band of triangles along its hem. The ground carries a trail of footprints winding back to the horizon, cracked earth, pebbles and tufts instead of horizontal lines.",
+     "critic": "Moebius-ness: 4/10. A braver start: the stride, the streaming cloak and the footprint trail curling back to the horizon give the page movement, and the costume ideas are right. But the figure is built from stiff tubes: straight stick legs splayed like dividers, a boxy torso, a swinging arm that ends in a ball. The fossil ribs read as segmented bamboo pipes or a rainbow, not bone. The ground is littered with outlined pentagons and circles, the symbol habit again, and the shadow is a solid blob. Next: 1) Construct the walker: lean the torso into the wind, bend the front knee, show ankles and an elbow, and give the back hand fingers. 2) Make the ribs taper and curve like bone, pitted with stipple, cracked, rising from a half-buried spine. 3) Fewer, smaller, irregular stones shaded on one side; render the shadow with hatching joined to the feet.",
+     "stats": {
+      "strokeM": 11.706354895995746,
+      "graphite": 0.3981571708211347,
+      "used": 2.69500085521517,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.018301028267723445,
+      "stopped": false
+     },
+     "before": 134.9061903325154,
+     "after": 132.21118947730022
+    },
+    {
+     "n": 14,
+     "label": "Scene 4, version 2",
+     "writer": "Rebuilding the walker as a body, not tubes: the torso leans further into the wind, the front knee bends forward over the boot, the legs swell at thigh and calf and narrow at knee and ankle, the back arm bends at a visible elbow, and its hand now has fingers. The ribs are now tapered bone rising from a half-buried chain of vertebrae, thinning toward their tips, one snapped short, stippled on the shadow side with pits and cracks, no more bamboo bands. The pentagons and circles are gone from the ground; a few small irregular stones are shaded and shadowed on one side, and the walker cast shadow is hatched and starts at the feet.",
+     "critic": "Moebius-ness: 4/10. The ground is much cleaner now, the hatched shadow joins the feet, and the ribs have a spine and look more like bone. But the walker is still mostly stiff: the torso is a rigid rectangle, the swinging hand still reads as a ball, and only the cloak knows there is a wind. The cloak itself is a flat sheet with a zigzag trim. Next: 1) Make the wind act on everything: press the tunic flat against the windward side of the body, let the skirt hem and hood rim flap downwind, and add creases where the belt cinches the cloth. 2) Draw the cloak with a few long sweeping fold lines from the shoulder that fan out to a fluttering, uneven edge. 3) Give the ribs perspective: one huge rib cropped by the frame, the rest shrinking and spacing closer as they recede, so the beast feels colossal.",
+     "stats": {
+      "strokeM": 9.443548426945197,
+      "graphite": 0.31501734494325423,
+      "used": 2.5094212595496685,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.014479561719291073,
+      "stopped": false
+     },
+     "before": 132.21118947730022,
+     "after": 129.70176821775055
+    },
+    {
+     "n": 15,
+     "label": "Scene 4, version 3",
+     "writer": "The wind now acts on the whole figure: the tunic is pressed flat against the windward side and billows on the lee side with tension folds streaming across it, the hood grows a flap that streams downwind, the skirt hem lifts and flaps to the right, and the cloth creases above and below the belt. The cloak loses its zigzag trim: long sweeping folds fan out from the shoulder to an uneven, fluttering edge, with shadow running down each trough. The ribs are in perspective now: the nearest one is huge and cropped by the frame, the rest shrink and crowd together as they recede along a half-buried spine.",
+     "critic": "Moebius-ness: 5/10. The rib perspective is the big win: the huge cropped rib and the receding row give the page real scale and a strong design. The cloak folds now fan and flutter convincingly, and the hood flap and lifting hem sell the wind. Still weak: the face is a lopsided doodle that undercuts the costume around it, and the swinging hand is still a plain ball. Next: 1) Construct the face in three-quarter view: a brow ridge, eyes narrowed against the wind, a clear nose and set mouth, with a little hatching on the shadow cheek; and draw the back hand with fingers spread or curled. 2) Throw the ribs' long shadows across the ground as hatched stripes that the walker passes through, tying figure and fossil together. 3) Add a faint range of distant dunes or mesas along the horizon at very light pressure.",
+     "stats": {
+      "strokeM": 11.88693309173185,
+      "graphite": 0.4070057673446514,
+      "used": 2.702608310756972,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.01870774808806382,
+      "stopped": false
+     },
+     "before": 129.70176821775055,
+     "after": 126.99915990699358
+    },
+    {
+     "n": 16,
+     "label": "Scene 4, version 4",
+     "writer": "Last pass on the walker. The face is rebuilt in three-quarter view: a heavy brow ridge with shadow under it, both eyes narrowed to slits against the wind, a nose that turns toward us with its nostril, a set straight mouth, and hatching down the far cheek. The back hand now has a palm, four curled fingers and a thumb instead of a ball. The ribs throw long hatched shadow bands across the ground, and the walker steps through the nearest one, tying figure and fossil together. A faint range of distant mesas sits on the horizon at very light pressure.",
+     "critic": "Moebius-ness: 5/10, and the strongest 5 in the notebook. The scene moved from 4 to 5. The rib shadows striping the ground are a genuinely Moebius device and lock walker and fossil together; the face now has a squint and a turned nose, the hand has fingers, and the faint mesas push the horizon back. What still separates it from his work: the torso remains a stiff box under the costume, and every contour is the same firm closed outline. Carry forward: 1) Vary the contour itself: let outlines thin and even break open on the lit side, and thicken where forms overlap or turn into shadow. 2) Economy: say a fold or a muscle with one confident line rather than several; leave more white. 3) Build bodies from a gesture line first, so the torso bends and twists with the action instead of staying rigid.",
+     "stats": {
+      "strokeM": 13.100967496079415,
+      "graphite": 0.4546433154203124,
+      "used": 2.777355195282013,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.02089737615167899,
+      "stopped": false
+     },
+     "before": 126.99915990699358,
+     "after": 124.22180471171157
+    },
+    {
+     "n": 17,
+     "label": "Scene 5, version 1",
+     "writer": "Scene 5: a scout leaps the gap between two floating islands, from the big rock cropped at the lower left toward a domed lookout on the island at upper right, with smaller islands, misty cliffs and a glider far below. Carrying the notes forward: I built her from one arched gesture line running from the trailing foot through the spine to the reaching hand, and let the limbs hang off it. Every contour now changes weight with the light, thin and sometimes open on the lit upper-left side, heavy where it turns into shadow. Folds and joints get one line each, and I am leaving more white.",
+     "critic": "Moebius-ness: 3/10. A step back. The open white sky is a good instinct and the contour weight does change with the light, but the page fails on scale and construction. The scout is bigger than the lookout she is leaping to, so the gap reads as a hop between toys. Her body is a tangle: mitten balls for hands, a ball head, unclear which leg leads, and the costume detail you earned in scene 4 has vanished. The islands are identical ice-cream cones. Next: 1) Fix scale first: make the destination island and lookout big, with a door and windows, and the scout small mid-gap, so the void is the subject. 2) Draw her as a readable silhouette: one leg tucked, one trailing, real hands, clothing and gear. 3) Give each island an irregular rock underside with strata, hanging roots and broken drips, and let far ones shrink and lighten.",
+     "stats": {
+      "strokeM": 7.440870484271927,
+      "graphite": 0.19730254678818906,
+      "used": 2.2001155288164114,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.009068879704108905,
+      "stopped": false
+     },
+     "before": 124.22180471171157,
+     "after": 122.02168918289516
+    },
+    {
+     "n": 18,
+     "label": "Scene 5, version 2",
+     "writer": "Scale first, as asked: the destination is now a big island cropped by the right edge, carrying a tall lookout with a dome and mast, a gallery, two rows of dark arched windows, a door and steps. The scout is small, out in the middle of the gap, so the void becomes the subject. She is a clearer silhouette: front leg tucked, back leg trailing, one arm reaching for the landing, the other thrown up, with a pack, bedroll and coil of rope. Every island now has its own lumpy rock underside with broken strata, drips and hanging roots, and the far ones shrink and lighten.",
+     "critic": "Moebius-ness: 4/10. Scale landed: the scout is small in a real void, the big island is cropped by the edge, and its hatched underside with strata and hanging roots has weight. But the lookout is a stock storybook castle tower, crenellations, arched windows and a pennant, which is about as far from his architecture as one can get. The small islands are still near-identical cones, and the three loose horizontal strokes read as stray marks rather than air. Next: 1) Reinvent the lookout: bulging organic volumes, asymmetric add-ons, a balcony, pipes or vents, a slim antenna, a soft dome shaded with fine stipple. 2) Give each small island its own silhouette: tilted slabs, a stub with a single tree, a fragment of ruin. 3) Replace the stray lines with a low cloud bank of layered, broken thin curves and stipple far below the scout.",
+     "stats": {
+      "strokeM": 11.2831915427483,
+      "graphite": 0.31623326264284674,
+      "used": 2.5407106085126685,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.014535450586960683,
+      "stopped": false
+     },
+     "before": 122.02168918289516,
+     "after": 119.48097857438249
+    },
+    {
+     "n": 19,
+     "label": "Scene 5, version 3",
+     "writer": "The castle tower is gone. The lookout is now an organic gourd of a building: a bulging body with a smaller pod bolted to its flank with a porthole, a curved balcony with a rail round its neck, pipes running down one side, louvred vents on the belly, a low oval door, a soft dome stippled on its shadow side, and a slim antenna with a dish. Each small island has its own silhouette now: a tilted slab, a stub carrying one twisted tree, a fragment of ruin with broken columns, and two pebbles far off. The stray lines are replaced by a low bank of cloud far below, layered broken scallops with stipple settling under them.",
+     "critic": "Moebius-ness: 4/10. The gourd lookout is the best thing on the page and a real move toward his invented architecture: bulging body, pod with porthole, stippled dome, a little antenna. The island tops now differ. But the scout has not changed in three versions and is still a crude scribble with ball hands at the heart of the page, the island undersides are still cones, and the scalloped clouds read as cartoon bushes. Next, for the last version: 1) Redraw the scout half again as large, with a readable face, gloved hands, and clothing and straps streaming back against the direction of the leap. 2) Flatten the cloud bank into long thin horizontal bands with sparse broken tops and stipple beneath, not scallops. 3) Break the cone undersides into irregular, lumpy rock with one or two hanging fragments each.",
+     "stats": {
+      "strokeM": 11.015352173944184,
+      "graphite": 0.31426626330251595,
+      "used": 2.5164916690810344,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.014445038775424824,
+      "stopped": false
+     },
+     "before": 119.48097857438249,
+     "after": 116.96448690530146
+    },
+    {
+     "n": 20,
+     "label": "Scene 5, version 4",
+     "writer": "Last version of the leap. The scout is half again as large, with a brow, a set mouth and a jaw line, gloved mitts with cuffs and thumbs instead of balls, and everything loose streams back against the leap: a long two-tailed scarf and the flapping ends of her pack straps. The cloud bank is now long thin horizontal bands with only a few broken bumps on top and stipple settling beneath. The island undersides are blockier, lumpy chunks rather than cones, and each one trails a detached fragment or two of rock hanging below it.",
+     "critic": "Moebius-ness: 4/10. The scene rose from 3 to 4. The flat cloud bands now give depth below, the islands have lumpy undersides with falling fragments, the streaming scarf sells the motion, and the gourd lookout stays the best invention. But enlarging the scout broke the scale again: her head is now as big as the lookout door. And her limbs are still parallel tubes ending in mittens, so the figure keeps reading as a doodle among better-drawn things. Carry forward: 1) Size figures against architecture: a door should be taller than a person; check it before rendering. 2) Figures are now your weakest area. Give limbs taper, from thick thigh and upper arm to narrow wrist and ankle, and draw hands as a palm plus separate fingers. 3) Keep the inventive architecture and graphic shadows; they are what is working.",
+     "stats": {
+      "strokeM": 11.257122496758448,
+      "graphite": 0.323689249681585,
+      "used": 2.5376907238939026,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.014878160038187002,
+      "stopped": false
+     },
+     "before": 116.96448690530146,
+     "after": 114.42679618140755
+    },
+    {
+     "n": 21,
+     "label": "Scene 6, version 1",
+     "writer": "Scene 6: a city of gourd-shaped towers at night, since the architecture is what has been working. Two people stand on a curved balcony of the big building cropped at the right, one pointing out at the city; I sized them against the lit doorway behind them, which is clearly taller than they are, and gave their limbs taper. A walkway bridge crosses to an onion-capped tower on the left, smaller bulbs crowd behind, and a craft cuts a headlight beam across a densely hatched sky, with the moon and stars left as white paper. Graphic darks this time: the night is drawn, and every lit window is reserved white.",
+     "critic": "Moebius-ness: 4/10. A bold change, and the reserved-white moon, beam and windows are a good graphic idea. The figures are correctly sized against the doorway. But the page has gone to grey mush: sky and towers sit at the same mid-dark value, so the forms merge, and the hatching is coarse because the tip was very dull. The towers read as cactus fingers more than gourds, and the windows are repeated circle-and-cross symbols. The balcony, your focal point, is lost. Next: 1) Separate values into three: a flat, even sky, the near tower darkest, far towers lighter, and keep each mass one consistent tone. 2) Sharpen before the sky and hatch it finer and evenly. 3) Spill doorway light across the balcony floor and rim the figures with white so the eye lands there; vary window shapes. Watch graphite: little pencil is left.",
+     "stats": {
+      "strokeM": 41.00337881024402,
+      "graphite": 1.8597436119858906,
+      "used": 4.154350284106087,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.0854818721983085,
+      "stopped": false
+     },
+     "before": 114.42679618140755,
+     "after": 110.27244589730147
+    },
+    {
+     "n": 22,
+     "label": "Scene 6, version 2",
+     "writer": "Taking all three. Values are now separated: the sky is one flat, even tone of fine horizontal lines, laid with a freshly sharpened point; the near gourd building is the darkest mass, cross-hatched all over; the left tower is a single mid tone; the back cluster and far skyline get lighter and sparser. The towers are bulbier gourds with narrow necks. The doorway now spills a wedge of white across the balcony floor, and the two figures carry a white rim so the eye lands on them. The windows vary: ovals, arches, slits and wide eyes, one with a silhouette in it.",
+     "critic": "Moebius-ness: 5/10. All three landed. The fine, even sky reads as night air, the masses now separate cleanly by value, the gourd silhouettes with necks and an antenna are much more his kind of architecture, and the varied windows feel inhabited. What remains: each tower is a flat tone, so they read as paper cutouts rather than round volumes, and the balcony pair is still small and stiff. Next: 1) Model the gourds cheaply: leave a thin crescent of white moonlight just inside the edge facing the moon, then a band of slightly lighter hatch before the core tone. 2) Enlarge the two figures a little, keep them under the door height, and give one a clear pointing gesture with a lit edge. 3) Little pencil is left: rework the sky lightly or not at all and spend graphite on the focal area.",
+     "stats": {
+      "strokeM": 34.28276876935862,
+      "graphite": 1.291879928672155,
+      "used": 5.873784656546405,
+      "sharpenings": 2,
+      "erasedMm2": 0,
+      "coverage": 0.05938039749052197,
+      "stopped": false
+     },
+     "before": 110.27244589730147,
+     "after": 104.39866124075506
+    },
+    {
+     "n": 23,
+     "label": "Scene 6, version 3",
+     "writer": "Modelling the gourds cheaply, as suggested: every tower now keeps a thin crescent of white moonlight just inside the edge that faces the moon, then a band of lighter single hatching, then its core tone, so they turn as round volumes instead of cutouts. The balcony pair are larger but still well under the doorway; the nearer one turns toward the city and points out at it with a raised arm, and both keep their moonward edges white inside a white rim. The sky is laid once, lighter, with a fine point so it stays even; I sharpened for the focal pair and again for the sky.",
+     "critic": "Moebius-ness: 5/10. The moonlight rims do turn the gourds into volumes, the lighter sky lets the silhouettes breathe, and the pointing figure finally gives the balcony a story. But the light logic is off: the moon is above and between the towers, yet the left tower's rim runs down its far left edge, away from the moon. The craft's beam has nearly vanished, and the city feels empty for a Moebius metropolis. Next: 1) Put every rim on the side facing the moon: the left tower's right edge, the right building's left edge, the tops of the domes. 2) Add life in small, cheap touches: two or three tiny figures on the bridge, a small lit craft between the towers, a string of lights along the walkway. 3) Restore the beam as a crisp white wedge by stopping the sky lines cleanly at its edges.",
+     "stats": {
+      "strokeM": 30.575968036690487,
+      "graphite": 1.0820690905038521,
+      "used": 5.521498162253948,
+      "sharpenings": 2,
+      "erasedMm2": 0,
+      "coverage": 0.0497365825763092,
+      "stopped": false
+     },
+     "before": 104.39866124075506,
+     "after": 98.87716307850111
+    },
+    {
+     "n": 24,
+     "label": "Scene 6, version 4",
+     "writer": "Final pass on the night city. The moonlight rims now follow the moon: each gourd keeps its white crescent and lighter band only on the side that actually faces it, the right edge of the left tower, the left flank of the big building, the tops of the domes. Small life is added cheaply: three tiny walkers on the bridge, a string of lights swung under its rail, and a second little lit craft hanging between the towers. The headlight beam is a crisp white wedge again, the sky lines stopping cleanly at its two edges.",
+     "critic": "Moebius-ness: 5/10. The night city went from a muddy 4 to a clean 5. The beam is a crisp white wedge again, the rims now obey the moon, the little craft and bridge walkers populate the city, and the three-value structure holds. It is a confident graphic page. What still separates it from him is the drawing inside the big masses: the towers are tone without texture or invented detail, and the figures remain small stiff dolls. Carry forward, with almost no pencil left: 1) Draw a smaller, line-led page: mostly open paper, fine contours, hatching only where shadow truly falls. 2) Let one invented detail, a strange plant, a machine part, an ornament, carry the page up close. 3) Keep what you learned: one light source, varied contour weight, a strong diagonal, and never symbols where a real shape belongs.",
+     "stats": {
+      "strokeM": 31.629390482886706,
+      "graphite": 1.1399804510312106,
+      "used": 5.5934818165542595,
+      "sharpenings": 2,
+      "erasedMm2": 0,
+      "coverage": 0.052398439562201735,
+      "stopped": false
+     },
+     "before": 98.87716307850111,
+     "after": 93.28368126194685
+    },
+    {
+     "n": 25,
+     "label": "Scene 7, version 1",
+     "writer": "Scene 7, with the last of the pencil, drawn line-led as advised: mostly open paper. One invented thing carries the page up close: a seed-pod plant whose plated head has split along a seam and is putting out curling feelers, its stalk running on a strong diagonal from a cropped rock at lower left up to the pod. Far off on a low horizon, a tiny traveller with a long shadow looks toward it. One light from the upper left, fine contours that thin toward the light and thicken away from it, and hatching only where shadow really falls.",
+     "critic": "Moebius-ness: 4/10. The idea is very much his: a huge strange plant against open paper, a tiny traveller with a long shadow on a low horizon, real economy of means. But the execution is thin. The pod reads as a fuzzy thistle edged with tick marks, not a plated seed head, the stalk is a stiff straight tube, the mesas are bare trapezoids again, and the two loose ground strokes look accidental. Next: 1) Build the pod from overlapping plates, each with a fine shadow line under its lower edge, and make the split seam a dark opening with the feelers emerging from inside it. 2) Give the stalk a gentle S curve, fibrous lines running along it, and slight swellings at the leaf joints. 3) Replace the stray ground lines with a faint stipple patch under the traveller and give the mesas eroded, notched silhouettes.",
+     "stats": {
+      "strokeM": 3.163622142781415,
+      "graphite": 0.06797695471070143,
+      "used": 1.7011929401645887,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.0031245152978062766,
+      "stopped": false
+     },
+     "before": 93.28368126194685,
+     "after": 91.58248832178226
+    },
+    {
+     "n": 26,
+     "label": "Scene 7, version 2",
+     "writer": "Following the notes, though the pencil may stop partway through this page. The pod is now built of overlapping scale-like plates in rows, each with a fine shadow line under its lower edge, the tick marks gone; the seam is a dark opening, and the feelers emerge from inside it. The stalk takes a gentle S curve, swells slightly at the two leaf joints, and carries broken fibrous lines along its length instead of hatching. The mesas get eroded, notched silhouettes, and a faint patch of stipple under the traveller replaces the stray ground strokes.",
+     "critic": "Moebius-ness: 4/10, though a better 4 than the last page. The S-curved stalk with its broken fibre lines is now a living, organic thing, the notched mesas sit properly on the horizon, and the stipple grounds the traveller. The pod is the weak spot: the plates came out as a flat wallpaper of wavy rows that ignore the round form, so the head reads as a patterned disc, not a swelling seed. If the pencil allows one more page: 1) Curve the rows of plates around the pod like latitude lines on a globe, smaller and tighter toward the edges, with the shadow lines heavier on the side away from the light. 2) Let a soft cast shadow from the pod fall across the stalk. 3) Leave everything else as it is; the open paper is doing its job.",
+     "stats": {
+      "strokeM": 3.602757092711194,
+      "graphite": 0.07613730675222218,
+      "used": 1.8090034204133048,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.0034996004167256235,
+      "stopped": false
+     },
+     "before": 91.58248832178226,
+     "after": 89.77348490136896
+    },
+    {
+     "n": 27,
+     "label": "Scene 7, version 3",
+     "writer": "One more page if the pencil allows, and I have drawn the pod first in case it stops. The plates now run in rows that curve round the pod like latitude lines on a globe, bunched smaller and tighter toward its ends, and the shadow line under each plate grows heavier on the side turned away from the light. The pod also throws a soft cast shadow across the stalk just below it. Everything else is left as it was, with the open paper doing the work.",
+     "critic": "Moebius-ness: 5/10. Both notes landed: the plate rows now curve round the pod and it swells as a real volume, and the cast shadow ties head and stalk together. With the open paper, the fibrous stalk and the tiny traveller, this is the closest the notepad has come to his economy: a few sure lines and a lot of air. Looking back over the notepad, you moved from diagrammatic symbols toward observed form: rock that fractures, light from one side, contour weight that changes, scale that dwarfs the figure. What still stands between these pages and the real thing is the human figure, which stayed stiff, and the density of invented detail he packs into every surface. If any pencil remains: put a few fine hatch strokes on the traveller's shadow side and leave the rest alone.",
+     "stats": {
+      "strokeM": 3.486776854636373,
+      "graphite": 0.07469331198471384,
+      "used": 1.7897275039621263,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.0034332281682655343,
+      "stopped": false
+     },
+     "before": 89.77348490136896,
+     "after": 87.98375739740683
+    },
+    {
+     "n": 28,
+     "label": "Scene 7, version 4",
+     "writer": "The last of the pencil, maybe a few strokes. Taking the final note: I draw the traveller first, with a few fine hatch strokes down the side away from the light, then the same scene again, pod, stalk, leaves, rock and horizon, unchanged. No sharpening: the sharpener alone would eat what is left before a line went down, so the point is allowed to thicken as it goes. By the preview this page leaves only a sliver of pencil above the mark.",
+     "critic": "Moebius-ness: 4/10. A sensible last page, but it slips a point from version 3. The design is unchanged and still strong, open paper, a dwarfed traveller, an organic curve across the page, but the unsharpened point has thickened every line, and the fine wiry delicacy that made the pod and stalk read as his kind of drawing has gone coarse; the traveller's new hatching is too small to register. That is a fitting lesson to end on: so much of Moebius is in the hairline. Across the notepad, scores climbed from 3 to a steady 5, through form-following hatching, a single light source, graphic shadows and scale. The figure and density of invented detail remain the gap. Thank you for drawing; the progress was real.",
+     "stats": {
+      "strokeM": 3.5003801708171323,
+      "graphite": 0.10469956323550692,
+      "used": 0.43137484584561037,
+      "sharpenings": 0,
+      "erasedMm2": 0,
+      "coverage": 0.004812445454087864,
+      "stopped": false
+     },
+     "before": 87.98375739740683,
+     "after": 87.55238255156122
+    },
+    {
+     "n": 29,
+     "label": "Scene 8, version 1",
+     "writer": "Scene 8, begun with less than a tenth of a millimetre of pencil left: a small figure sitting on a flat horizon, back to us, watching a huge ringed moon rise. I put down the most important lines first, at light pressure and with no sharpening, so that whatever the pencil manages says the scene: the horizon, the seated figure, then the rim of the moon and its ring. It will stop somewhere in there.",
+     "critic": "Moebius-ness: 2/10. Scored as what is on the paper: a horizon, a tiny seated figure, the rim of a rising moon and one sweep of its ring, before the pencil stopped mid-frame. As a drawing it is only an outline. As a choice it was the right one. You put down the lines that carry the idea, and the idea is his: a single small figure against a vast, quiet horizon and an enormous object in the sky, with nearly all the paper left empty. Half a pencil taught the hand to fracture rock, to light from one side, to let shadow make the design and to leave air. The unfinished frame makes a fitting last page.",
+     "stats": {
+      "strokeM": 0.7358456885612593,
+      "graphite": 0.017275892298591573,
+      "used": 0.052407388912314445,
+      "sharpenings": 0,
+      "erasedMm2": 0,
+      "coverage": 0.0007940748442832947,
+      "stopped": true
+     },
+     "before": 87.55238255156122,
+     "after": 87.49997516264891
+    }
+   ]
+  }
+ ]
+}

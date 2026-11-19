@@ -30,6 +30,7 @@ A draft is a JSON file:
 ```json
 {
   "says": "What I am about to write or draw, and why — in my own voice.",
+  "label": "optional short caption for the page, e.g. Scene 2, version 3",
   "ops": [
     { "op": "write", "text": "A heading", "size": 12, "y": 16, "pressure": 1.1 },
     { "op": "write", "text": "Body text wraps on its own and sits on the ruled lines." },

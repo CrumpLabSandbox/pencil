@@ -11,6 +11,7 @@ Live site: <https://crumplabsandbox.github.io/pencil/>
 | **Half a Pencil** | A writer decides what to write and draw; a critic looks at each page and argues for using more pencil. | half the pencil is gone |
 | **On the Phone** | Two Claudes talk as if on a phone call; one doodles while it talks, and the other cannot see the page. | three quarters of the pencil is gone |
 | **The Doodle Critic** | The same phone call, but the doodles are about the conversation, and a third agent looks at each page and asks for more interesting, more elaborate doodles. | half the pencil is gone |
+| **More Like Moebius** | A drawer invents scenes; a critic scores how much each page looks like a Moebius drawing and suggests how to get closer. Each scene is drawn once and redrawn three times. | half the pencil is gone |
 
 ## Run it
 

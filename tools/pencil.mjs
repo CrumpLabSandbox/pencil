@@ -136,7 +136,7 @@ function status(m, role) {
   if (last) {
     const { nb, p } = last;
     if (!blind) {
-      out.push(`latest page: ${nb.id} page ${p.n} -> image ${path.join(RENDERS, `${m.id}-${nb.id}-${pad(p.n)}.png`)}`);
+      out.push(`latest page: ${nb.id} page ${p.n}${p.label ? ` (${p.label})` : ''} -> image ${path.join(RENDERS, `${m.id}-${nb.id}-${pad(p.n)}.png`)}`);
       out.push(`latest page stats: ${f2(p.stats.strokeM)} m of strokes, ${f2(p.stats.graphite)} mm3 graphite, ${f2(p.stats.used)} mm of pencil, ${p.stats.sharpenings} sharpenings, tooth ${f1(p.stats.coverage * 100)}% full`);
     }
     if (role !== 'writer') out.push(`${R.writer.name} said (page ${p.n}): ${p.writer}`);
@@ -196,7 +196,8 @@ if (cmd === 'status') {
   const stats = { strokeM: st.strokeMm / 1000, graphite: st.graphite, used: before.length - sim.s.length, sharpenings: st.sharpenings, erasedMm2: st.erasedMm2, coverage: sim.coverage(), stopped: sim.stopped };
   fs.mkdirSync(path.join(DATA, m.id, nb.id), { recursive: true });
   fs.writeFileSync(path.join(DATA, m.id, nb.id, `${pad(n)}.json`), JSON.stringify({ notebook: nb.id, page: n, seed, says: d.says.trim(), before, after: sim.s, stats, warnings, ops: d.ops }));
-  nb.pages.push({ n, writer: d.says.trim(), critic: null, ...(m.roles.reviewer ? { review: null } : {}), stats, before: before.length, after: sim.s.length });
+  const label = typeof d.label === 'string' ? d.label.trim().slice(0, 60) : '';
+  nb.pages.push({ n, ...(label ? { label } : {}), writer: d.says.trim(), critic: null, ...(m.roles.reviewer ? { review: null } : {}), stats, before: before.length, after: sim.s.length });
   m.pencil = sim.s;
   m.done = sim.stopped;
   save(m);

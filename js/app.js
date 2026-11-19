@@ -231,7 +231,8 @@ function renderShell() {
   renderAbout(b);
   $('#pageInput').max = Math.max(1, count); $('#pageInput').value = app.page;
   $('#pageCount').textContent = `of ${Math.max(1, count)}${local ? ` (max ${MAX_PAGES})` : ''}`;
-  $('#pageno').textContent = count ? app.page : '';
+  const pageLabel = !local && b?.nb.pages[app.page - 1]?.label;
+  $('#pageno').textContent = count ? (pageLabel ? `${pageLabel} · ${app.page}` : app.page) : '';
   $('#first').disabled = $('#prev').disabled = app.page <= 1;
   $('#last').disabled = app.page >= count;
   $('#next').disabled = local ? app.page >= MAX_PAGES : app.page >= count;
@@ -270,7 +271,7 @@ function renderTranscript() {
     li.className = p.n === app.page ? 'on' : '';
     li.dataset.page = p.n;
     const stats = `${p.stats.strokeM.toFixed(1)} m of line · ${p.stats.used.toFixed(1)} mm of pencil · sharpened ${p.stats.sharpenings}×`;
-    li.innerHTML = `<h3>Page ${p.n}<span>${stats}</span></h3>
+    li.innerHTML = `<h3>Page ${p.n}${p.label ? ` · ${escapeHtml(p.label)}` : ''}<span>${stats}</span></h3>
       <div class="msg w"><span class="who w">${escapeHtml(R.writer.name)}, ${escapeHtml(R.writer.cue)}</span>${escapeHtml(p.writer)}</div>
       ${p.critic ? `<div class="msg c${p.n === app.page && pending ? ' pending' : ''}"><span class="who c">${escapeHtml(R.critic.name)}, ${escapeHtml(R.critic.cue)}</span>${escapeHtml(p.critic)}</div>` : `<div class="msg c pending"><span class="who c">${escapeHtml(R.critic.name)}</span>…</div>`}
       ${!R.reviewer ? '' : p.review ? `<div class="msg r${p.n === app.page && pending ? ' pending' : ''}"><span class="who r">${escapeHtml(R.reviewer.name)}, ${escapeHtml(R.reviewer.cue)}</span>${escapeHtml(p.review)}</div>` : `<div class="msg r pending"><span class="who r">${escapeHtml(R.reviewer.name)}</span>…</div>`}`;
