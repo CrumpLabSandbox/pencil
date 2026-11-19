@@ -1,0 +1,325 @@
+{
+ "title": "Half a Pencil",
+ "pencil": {
+  "length": 87.49998158287849,
+  "worn": 0.05144158798622957,
+  "eraser": 8.995443270735691,
+  "sharpenings": 30,
+  "graphite": 27.138130957544238,
+  "distance": 604089.2613506648
+ },
+ "done": true,
+ "closing": "Nineteen pages, one day, one desk, and a pencil that stopped a stroke into a word I never chose. I meant to keep a quiet, exact notepad. What I got was an argument, and the argument drew most of the good pages: the moving shadow, the underfur, the night laid down first so the room could be rubbed out of it. I kept my bare paper where the light was. The critic kept count. We were both right about the cat. The sharpener took more than the paper did, and I do not grudge it; the shavings were pretty. The letter is posted. Half a pencil is left. I will press hard anyway.",
+ "notebooks": [
+  {
+   "id": "nb1",
+   "title": "Notebook 1",
+   "pages": [
+    {
+     "n": 1,
+     "writer": "I am starting by drawing the pencil itself at life size down the right edge of the page, with a tick at the place where I will have to stop. Beside it, a few plain lines saying what this notepad is going to be: one desk, one window, one day, written down as the pencil gets shorter. I want the first page to be quiet and exact. The measuring comes before the spending.",
+     "critic": "A lovely exact portrait, and a miser's one. The pencil's barrel is an outline with one thin stripe of shading; the tip is still 86% sharp; the tooth is 0.3% full. You spent 0.55 mm. At that rate you need about 158 more pages to reach the tick you drew. \"Nothing wasted, nothing saved\" - yet the whole lower left is bare ruled paper and you saved all of it. Measuring is done; spend now. Whatever the desk holds, give it weight: press at 1.4, cross-hatch the shadows at half-millimetre spacing, and let the point go blunt until the wood forces a sharpening. A page that never sharpens barely costs anything.",
+     "stats": {
+      "strokeM": 3.382235408766473,
+      "graphite": 0.0559562985485341,
+      "used": 0.5457504860196707,
+      "sharpenings": 0,
+      "erasedMm2": 0,
+      "coverage": 0.0025719938675218238,
+      "stopped": false
+     },
+     "before": 175,
+     "after": 174.45424951398033
+    },
+    {
+     "n": 2,
+     "writer": "You are right that I measured and then flinched. Fine: it is not yet dawn at this window, and darkness is the one subject where your advice and mine agree, because a night sky honestly is mostly graphite. I will cross-hatch the upper panes hard, let the sky thin toward the horizon, block the rooftops in solid, and then take the eraser to it for two lit kitchens and the moon. Then I sharpen, because words need a point. I am not pressing at 1.4 everywhere, only where it is dark. The point can go blunt on the sky; that is what the sky is for.",
+     "critic": "Now that is a night. 4.80 mm, nearly nine times page one, and the sky was a fair place to go blunt. But look where it stopped paying: the upper panes are solid, so every further pass there cost nothing, and the tooth is only 15% full because the wall around the frame, the sill and the mullions are bare. The moon and kitchens are three thumbprints; the eraser lost 0.02 mm. And one sharpening for 48 metres is thrift. A fussy draughtsman touches up the point between every pane; each visit is 1.1 mm for free. Next page: sharpen whenever you change tools or tone, and erase something big, then draw into the freed paper.",
+     "stats": {
+      "strokeM": 48.31265878246618,
+      "graphite": 3.319781924065146,
+      "used": 4.803194262093598,
+      "sharpenings": 1,
+      "erasedMm2": 74,
+      "coverage": 0.15118769246697947,
+      "stopped": false
+     },
+     "before": 174.45424951398033,
+     "after": 169.65105525188673
+    },
+    {
+     "n": 3,
+     "writer": "I will take half of that. Sharpening between tones is simply how a shaded study is done, so the mug gets a fresh point for its outline, its steam, its body and its lettering, and I will not pretend that is thrift. The big erasure I like too: I am blacking in the wall behind the cup and then rubbing the steam out of it, and drawing the curls into the cleaned paper. What I refuse is filling the mullions and margins just because they are empty. White paper is where the light comes from. The mug's bright side stays bare.",
+     "critic": "Keep your white; the bare flank of the mug is the best thing on the page, and I concede the mullions. Note the arithmetic, though: half the graphite of the window, yet 7.22 mm against 4.80, because you sharpened three times. The sharpener is doing your drawing for you. Two complaints. You scrubbed a fine column of paper clean for the steam and then put two hairlines in it; freed tooth is hungry, feed it. And the table is twenty thin rules where wood grain, knots and a wet ring could be. Also your caption is whispering. Words can be pressed too: write heavy, go over the letters twice, and blunt the point on them.",
+     "stats": {
+      "strokeM": 32.03247025160834,
+      "graphite": 1.6904042619976634,
+      "used": 7.216315164308213,
+      "sharpenings": 3,
+      "erasedMm2": 440,
+      "coverage": 0.07439321202690537,
+      "stopped": false
+     },
+     "before": 169.65105525188673,
+     "after": 162.43474008757852
+    },
+    {
+     "n": 4,
+     "writer": "Pressed words, yes, but not all of them. This page is an inventory of the desk, and each thing is written and drawn at its own weight: the faded receipt at almost no pressure, the feather barely more, on up through the coin to the jammed stapler and a beach stone that gets the full 1.6, three passes, and takes the point clean off. Shouting every caption would flatten the list into one tone. A whisper next to a shout is how you hear either. The table's grain and its wet ring are a good idea and I am saving them. One sharpening only, at the end.",
+     "critic": "The whisper-to-shout scale works; I can hear the receipt fading. But you gave the shout a stamp-sized stage. The stone that \"took the point off\" is fifteen millimetres wide, so it took off almost nothing: 2.00 mm for the page, 0.13 cubic mm of graphite, tooth 0.6% full. A heavy thing drawn small is a light thing. If weight is your subject, let it have size as well as pressure: the stone at life size or larger, sitting on its own shadow, modelled in layers with a point touched up between them. And a coin wants a rubbing, a solid disc of side-of-the-lead. You have 72.94 mm to go; inventories at this rate take thirty-six pages.",
+     "stats": {
+      "strokeM": 4.850529945331741,
+      "graphite": 0.1332323079261949,
+      "used": 1.9996040070250842,
+      "sharpenings": 1,
+      "erasedMm2": 32,
+      "coverage": 0.005838818551017434,
+      "stopped": false
+     },
+     "before": 162.43474008757852,
+     "after": 160.43513608055343
+    },
+    {
+     "n": 5,
+     "writer": "A heavy thing drawn small is a light thing. That is the best sentence either of us has put in this record and I am taking it whole. So the stone comes back and gets most of a page: built up in six layers of hatching that crowd toward its underside, the point touched up as the tones change, sitting on a proper shadow. Then the eraser goes straight through it for the quartz vein. The coin rubbing I will owe you. I am keeping the lit shoulder of the stone nearly bare, though. Weight needs a light side to be heavy against.",
+     "critic": "It has heft now, and the vein rubbed through the dark is the best use of the eraser so far. 5.61 mm. But your six layers are stacked like plates on one spot: the core went black by the third, and paper that is full takes nothing, so layers four to six were free rides. Tooth is 3.7% full. Spread tone sideways, not downward into the same patch: pits and speckle over the whole stone, the desk it sits on, the grain you owe me. And since this notepad is one day: shadows move. Draw the 8:20 shadow, rub it out, draw it again where the sun has pushed it. Honest, and it bills the same paper twice.",
+     "stats": {
+      "strokeM": 27.783726897444026,
+      "graphite": 0.8609596706637833,
+      "used": 5.613600242082583,
+      "sharpenings": 2,
+      "erasedMm2": 685,
+      "coverage": 0.037083083672180675,
+      "stopped": false
+     },
+     "before": 160.43513608055343,
+     "after": 154.82153583847085
+    },
+    {
+     "n": 6,
+     "writer": "Shadows move. I wish I had thought of it. So the pencil stands on end in a lump of putty and becomes a sundial: its 8:20 shadow drawn solid and rubbed out, the 9:10 shadow drawn and rubbed out, and the 10:05 one left standing, with the two ghosts still visible in the scuffed paper. You call that billing the same paper twice; I call it the only honest way to draw a morning. Underneath goes the desk I owed you: grain across the whole page, a knot, and the ring the mug left. Tone spread sideways, as asked.",
+     "critic": "The sundial is the most honest page yet and I am proud of my small part in it; the ghosts read beautifully. But a pencil's shadow is six millimetres wide, so billing it three times came to 2.96 mm, about half the stone. The eraser paid more than the lead did: it lost 0.9 mm. And the grain is forty hairlines from a needle point; tooth 1.2% full. Wood is a tone before it is a line. Your title says sun ON the desk, which means most of the desk is not in it. Next time light falls somewhere, shade everything it misses with a blunt tip, and leave the lit patch as your precious white.",
+     "stats": {
+      "strokeM": 17.509269247202806,
+      "graphite": 0.6387168783546061,
+      "used": 2.95992337586776,
+      "sharpenings": 1,
+      "erasedMm2": 7635,
+      "coverage": 0.012191860632360553,
+      "stopped": false
+     },
+     "before": 154.82153583847085,
+     "after": 151.8616124626031
+    },
+    {
+     "n": 7,
+     "writer": "Wood is a tone before it is a line. Agreed, and you have also just told me how to draw noon. The window is lying on the floorboards now, four panes of light, so I am doing exactly what you said: a blunt tip over everything the sun misses, three passes, darker away from the glass, and the lit patch left as bare paper. I get my white and you get your graphite; this may be the one page where we want the same thing. The cat is mine, though. She goes in the best pane, drawn first while the point is still sharp.",
+     "critic": "We did want the same thing, and the composition proves it: the light is the subject and you never drew it. But look closely at the dark. It is a weave, not a shadow; I can count the paper showing through the mesh. Thirty metres of line bought only 0.77 cubic mm and 3.47 mm of pencil, where the night window got 3.32 from forty-eight. Tooth 3.6% full under what looks like a black floor. Close the hatch to a third of a millimetre and lean on it. And the cat: she is an outline with a striped patch. A cat is fur. Ten thousand short strokes, sharpened for twice, would be devotion, not waste.",
+     "stats": {
+      "strokeM": 30.756337633043024,
+      "graphite": 0.7725004560113786,
+      "used": 3.4695556614012446,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.03550746716910309,
+      "stopped": false
+     },
+     "before": 151.8616124626031,
+     "after": 148.39205680120185
+    },
+    {
+     "n": 8,
+     "writer": "A page of words now, because a day at a desk is mostly that. It is a letter, in my joined-up hand, with one sentence struck out hard and replaced by a truer one. You are in it. About the floor: I am keeping my weave. A floor in shade at noon is not a night sky, and if both go to the same black I have one tone for two different darks. But the cat was a fair hit. An outline with a striped patch is a logo, not an animal. She gets a page of fur next, and I will sharpen for it gladly.",
+     "critic": "Hello, Ines. I grant you the weave: two darks, two tones, fair. And this page shows something no drawing has: the hand thickening line by line as the point goes, then thin again after the strike-out. That is the pencil telling the time. But words are cheap. 1.99 mm, 0.13 cubic mm, the same as the inventory. One sentence struck out is a tidy conscience. Real letters are fought: a paragraph rubbed out whole and rewritten over the scuff, a false start, second thoughts crowding the margin, a point sharpened every time the writer loses the thread. And that envelope is blank; address it. 58.90 mm to go, and I am waiting for the fur.",
+     "stats": {
+      "strokeM": 4.868212216437174,
+      "graphite": 0.13137359111549823,
+      "used": 1.9926469212660436,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.006038499322535459,
+      "stopped": false
+     },
+     "before": 148.39205680120185,
+     "after": 146.3994098799358
+    },
+    {
+     "n": 9,
+     "writer": "The fur, as promised, and I mean to do it your way without flinching: about six thousand short strokes, each one laid along the direction the coat actually grows, hard for the tabby stripes and light between them, in three sittings with a sharpening after each. No outline at all. If the cat has an edge it will be because the hairs stop. Her eyes and the bib of white on her chest stay nearly bare. As for the letter: I do fight my letters, but Ines gets the fair copy. The envelope is blank because I have not decided to send it.",
+     "critic": "She is wrong; it is a likeness, and the edge made only of hairs stopping is the real thing. 6.53 mm, second best page, and half of that was the three sharpenings, so you see who your friend is. Now the tabby truth: a coat has underfur. Between your strokes I see raw paper all the way down, tooth 2.9% full; a soft grey laid first with a fat point would have sat under every hair. And she floats in nothing. White whiskers and a white bib want a dark room behind them, then the whiskers lifted out with the eraser, which has been idle three pages. Keep the unsent envelope. 52.36 mm left; about eight cats.",
+     "stats": {
+      "strokeM": 25.86619667569661,
+      "graphite": 0.6234298742848783,
+      "used": 6.534472985659761,
+      "sharpenings": 3,
+      "erasedMm2": 0,
+      "coverage": 0.028655537510534658,
+      "stopped": false
+     },
+     "before": 146.3994098799358,
+     "after": 139.86493689427604
+    },
+    {
+     "n": 10,
+     "writer": "Halfway through the afternoon I want to stop and count. So: the pencil at life size again, in the same spot as page one, with a dotted ghost where the rest of it used to be. Thirteen tally strokes. And the shavings, which is where your friend the sharpener has been putting my pencil; I thought you should have to look at them. The coin rubbing I owed you is here too, life size, side of the lead. Underfur and a dark room behind the cat: both right, both too late for her. The next animal or the next evening gets them.",
+     "critic": "I looked at the shavings. I regret nothing; they are the prettiest thing here, and the coin is paid in full, the one honest black on the page. Your tally says thirteen, by the way, and then you sharpened to finish: fourteen. The books were out of date before the page was dry. But accountancy is the cheapest thing a pencil does: 2.04 mm, level with the inventory and the letter. Three of ten pages have cost two millimetres. The good news is on your clock. It is three in November; the light is about to go, and everything you draw from here is honestly darker than the last. Start the underlayer now and never let a dusk page sharpen fewer than four times.",
+     "stats": {
+      "strokeM": 7.032983361751533,
+      "graphite": 0.15522527321552332,
+      "used": 2.0435300843308823,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.007134825948712682,
+      "stopped": false
+     },
+     "before": 139.86493689427604,
+     "after": 137.82140680994516
+    },
+    {
+     "n": 11,
+     "writer": "You caught the tally. Fourteen; the books were wrong before the page was dry, which is about right for accounts. And yes, the clock is on your side from here: it is ten past four in November and everything gets darker for good reasons. So I go back to the morning's window. This time your underlayer goes down first, a soft grey from a fat point under the whole sky, with only a little dark let down from the top and a pale strip left at the roofs. It stays pale because the tree has to show against it, and the rooks. Dusk is not night yet. Three sharpenings, not four. I count them now.",
+     "critic": "The best page, and by a hair the dearest: 7.24 mm against the coffee's 7.22. The grey under the sky is what I meant; the tree stands on it instead of on paper, and the rooks are worth their ink. You are past the middle of your half now: 44.42 gone, 43.08 to go. Three sharpenings, counted, noted, forgiven. Here is what the page leaves out. At ten past four the room is darker than the sky, yet the wall around your frame is the brightest thing on the sheet. Tooth 5.4%. The window should be the lamp and the room the shade. And soon the glass turns mirror: you will have to draw what it reflects, which is everything behind you.",
+     "stats": {
+      "strokeM": 39.228142810650446,
+      "graphite": 1.230405406944961,
+      "used": 7.241137548204705,
+      "sharpenings": 3,
+      "erasedMm2": 164,
+      "coverage": 0.05441547821919531,
+      "stopped": false
+     },
+     "before": 137.82140680994516,
+     "after": 130.58026926174045
+    },
+    {
+     "n": 12,
+     "writer": "The window should be the lamp and the room the shade. You are right, and I only saw it when you said it: I have been drawing a lit room around a dark window all day and then a bright wall around a dusk one. So the wall gets it now. The lamp is on, and everything outside its cone goes down under your grey underlayer and two more passes, deepest in the corners. What the lamp lights is this notepad and this pencil, drawn first with the point I have. The mirror in the glass is coming. I want full dark for it.",
+     "critic": "The day a metre across: yes. The room finally went down and the cone is your white, earned. But read the bill. 53.80 metres, the most line of any page, for 4.13 mm, because the corners were full after the first pass and you sharpened once. Every page above six and a half millimetres had three sharpenings; every page with one came in under five. The lead is cheap, the wood is dear. Also the eraser has slept since the sundial, and a lamp is its natural job: the glare on the shade, the bright rim of the pad, lifted from the dark and redrawn. And the hand you left out is the most complicated object on the desk. Put it in.",
+     "stats": {
+      "strokeM": 53.80073339340202,
+      "graphite": 1.8342560519938642,
+      "used": 4.125942538605898,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.08431035362524754,
+      "stopped": false
+     },
+     "before": 130.58026926174045,
+     "after": 126.45432672313456
+    },
+    {
+     "n": 13,
+     "writer": "Put the hand in, you say. The writing hand is busy; it cannot sit for itself. But the other one has been flat on the paper all day holding the pad still, so I am tracing round it, life size, the way children do, and then adding what tracing misses: nails, knuckle creases, and a faint band on the ring finger. The desk around it goes dark in three passes, with a sharpening in the middle so the last pass can get in between the fingers. And the eraser wakes up: I am lifting a label out of the dark and writing in the cleaned patch.",
+     "critic": "The pale band on the ring finger is the quietest heavy line in the notepad, and I like that you sharpened for a reason: to get between the fingers. 5.64 mm; 33.32 to go. But the hand is a paper cut-out. Under a lamp a hand has a dark side, tendons, veins, a cast shadow, and creases enough for a small map; yours has twelve. It is the largest blank on the page. For your mirror, a thought that is physics and not greed: a reflection is the room at a tenth strength. Draw the whole room in the glass, firmly, rub it back to a ghost, then lay the night over the scuffed paper. Three bills, one pane.",
+     "stats": {
+      "strokeM": 47.00631286064966,
+      "graphite": 1.178208976963796,
+      "used": 5.638496526063335,
+      "sharpenings": 2,
+      "erasedMm2": 860,
+      "coverage": 0.05047407358606384,
+      "stopped": false
+     },
+     "before": 126.45432672313456,
+     "after": 120.81583019707122
+    },
+    {
+     "n": 14,
+     "writer": "Your mirror, with the order turned round, and I think my physics beats yours. A reflection is light and this pencil only makes dark, so drawing the room first and burying it would leave nothing to see. Instead the night goes down solid over all four panes, then the eraser pulls the room out of it in rows: the lamp, a head and shoulders, this pad. Then a sharp point redraws just enough into the scuffed paper. Still three bills on one pane, so you lose nothing. On the hand: guilty. A cut-out. But a tracing is a cut-out, and I like that it admits it.",
+     "critic": "Your physics beats mine; I yield. Dark first, room lifted out, and the eraser gave 1.35 mm of itself to do it. Most graphite of any page, 3.63 cubic mm, for 5.75 mm. But you opened a large clean field of tooth and then fed it a few dozen slanting lines. A reflection in night glass is a grey ghost, never paper white; that figure is the brightest thing in the room. Glaze back over it, and give the head a face, since you know the person more or less. More, please. I notice you ended blunt at 0.57 and the caption came out fat and black. I approve of that hand. 27.57 mm left: five pages, if you mean them.",
+     "stats": {
+      "strokeM": 51.077599431650704,
+      "graphite": 3.634842635363262,
+      "used": 5.750606558834789,
+      "sharpenings": 1,
+      "erasedMm2": 9330,
+      "coverage": 0.11989038171510565,
+      "stopped": false
+     },
+     "before": 120.81583019707122,
+     "after": 115.06522363823643
+    },
+    {
+     "n": 15,
+     "writer": "You asked two things of the letter pages ago: fight it, and address the envelope. Both now. The postscript gets a false start struck out, then a first attempt written in full and rubbed away, then the true version written over the scuff. Below it the envelope lies on the dark desk under the lamp, addressed, stamped, three passes of desk around it. So I have decided to send it. I think your nagging about the blank envelope decided that. The face in the glass stays unglazed and faceless, though. I said I know that person more or less. Less, this evening.",
+     "critic": "Less, this evening: I withdraw the face. And if my nagging posted a letter, that is the most a critic has ever done. I can just see the rubbed-out attempt haunting the lines of the P.S.; that scuff is worth more than the slab below it, where passes two and three went onto full paper for nothing. 5.61 mm. The envelope itself is bare: no postmark, no crease, no thumb. Now look at your point. 1.31 mm wide, nearly to the wood. That is not a pencil, it is a brush. Do not sharpen it first thing; drag it broad and hard over fresh paper until it gives out. 21.96 mm left. It will stop mid-stroke, so draw what matters first.",
+     "stats": {
+      "strokeM": 49.87323377847205,
+      "graphite": 1.5578636814674443,
+      "used": 5.608330366180013,
+      "sharpenings": 2,
+      "erasedMm2": 2167,
+      "coverage": 0.06915059234180782,
+      "stopped": false
+     },
+     "before": 115.06522363823643,
+     "after": 109.45689327205642
+    },
+    {
+     "n": 16,
+     "writer": "It is a brush, so I am using it as one, and for something I owe you twice over. Pages ago you said a coat has underfur and that the cat floats in nothing. So: the lamp goes off, and the blunt point is dragged broad and hard across the whole sheet, room and underfur in one coat, until it gives out. The cat goes in on top of that, blacker than the dark. Then the eraser finds her: two eyes and a bib, nothing else. Only then do I sharpen, for pupils and whiskers. What matters first: she does.",
+     "critic": "The dark has fur. Both debts paid on one sheet, and the brush did it: 3.27 cubic mm, 5.91 mm, tooth 14.6%, the fullest paper since the first night. I can see the broad strokes crossing like a blanket. Two notes. The whiskers are dark hairlines on dark and vanish; whiskers catch light, so lift them with the eraser's corner. And the tabby is now a hole in the page; her black went full at once and took the stripes with it. 16.05 mm left, perhaps three pages. You have learned both my tricks, so chain them: wear the point to the wood, let the wood force the sharpener, wear it down again. Three times a page.",
+     "stats": {
+      "strokeM": 51.08203936082098,
+      "graphite": 3.2659461198369386,
+      "used": 5.905130691657362,
+      "sharpenings": 2,
+      "erasedMm2": 393,
+      "coverage": 0.14640618168226555,
+      "stopped": false
+     },
+     "before": 109.45689327205642,
+     "after": 103.55176258039906
+    },
+    {
+     "n": 17,
+     "writer": "The notepad leaves the desk for one page, because the letter did. A pillar box under a street lamp on a wet night: the box drawn first while the point is fine, then the street laid over the rest, hard, and here I do your chain honestly, worn flat, sharpened, worn flat again, because a wall at night is big and dull and deserves no better. You are right that the tabby went into a hole. I mind less than you do; that is what cats do after dark. Three pages, you say. I think two and a sentence.",
+     "critic": "7.37 mm: the record, on the page where you ran my chain without being asked twice. I take the pencil's word on the red, though red is a mid tone in graphite and your box is the palest thing on the street. And you promised a wet night; the pavement is dry stripes with no lamp lying in it. Small matters. The arithmetic is the large one: 8.69 mm left, and your last four pages cost 5.6 to 7.4 each. So not two and a sentence. One page, and it will be cut off inside the second. Nothing I can teach you now except order: whatever you could not bear to leave unfinished goes down first. Let the wall be what the pencil dies on.",
+     "stats": {
+      "strokeM": 57.16915939739997,
+      "graphite": 2.6802439756873055,
+      "used": 7.366519667731069,
+      "sharpenings": 2,
+      "erasedMm2": 246,
+      "coverage": 0.12288838569093226,
+      "stopped": false
+     },
+     "before": 103.55176258039906,
+     "after": 96.18524291266799
+    },
+    {
+     "n": 18,
+     "writer": "Then this is the last whole page, and I know what goes on it: the first window again, the one from before the sun. Same frame, same night, but with everything you taught me in it. The night solid. The lamp reflected in the glass, lifted out and then glazed back to a ghost, since you were right that a reflection is never paper white. And the cat on the sill with her back to us, grey underfur laid first with the fat point, then her stripes, which I owe her. The wall stays bare. I will not let the pencil die on a wall. It can die on a sentence.",
+     "critic": "Hold this beside page two. Same frame, same night; that one had thumbprints for windows and cost 4.80 mm, this one has a ghost lamp glazed back to grey, a striped cat on underfur, a tail over the sill, and cost 6.73. You kept your bare wall to the end and I have stopped minding. 1.96 mm left. Your point is at 0.33, so the sharpener will do nothing for you until you blunt it; a plain letter page cost about that much, sharpening included. So for once my advice and your sentence weigh the same. Write it large, press as hard as the stone, go over the words, and do not look at the tick. It will find you.",
+     "stats": {
+      "strokeM": 48.81906850683473,
+      "graphite": 3.2875344131103645,
+      "used": 6.727583917439716,
+      "sharpenings": 2,
+      "erasedMm2": 505,
+      "coverage": 0.14888674922708386,
+      "stopped": false
+     },
+     "before": 96.18524291266799,
+     "after": 89.45765899522827
+    },
+    {
+     "n": 19,
+     "writer": "Order, then. What I could not bear to leave unfinished goes first and goes heaviest, three short lines pressed as hard as the stone and gone over: the letter is posted, the cat is in, the lamp is going off. After that I sharpen and say what the day held, and thank you, in my own way, which is grudgingly. Then I start a sentence about tomorrow that I do not expect to finish. I am not looking at the tick. You were good company for half a pencil.",
+     "critic": "It found you one stroke into the word after \"draw\", and the bottom third of the page is bare for the only reason I will ever accept. 1.96 mm, to the hundredth. The three pressed lines sit like the stone; the thanks came out thin after the sharpening, which is how grudging should look. The ledger: nineteen pages, thirty sharpenings, 87.5 mm, an eraser three millimetres shorter. The sharpener got more of your pencil than the paper did, and the paper got the better half. I have no more advice. There is half a pencil left, and nobody reading over your shoulder tomorrow. Press hard anyway.",
+     "stats": {
+      "strokeM": 3.638351390873715,
+      "graphite": 0.08724915999265533,
+      "used": 1.9576774123497813,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.004010349322464545,
+      "stopped": true
+     },
+     "before": 89.45765899522827,
+     "after": 87.49998158287849
+    }
+   ]
+  }
+ ]
+}

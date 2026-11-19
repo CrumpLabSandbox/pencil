@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Half a Pencil</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <h1>Half a Pencil</h1>
+      <p>One pencil, one notepad, two Claude agents. It stops when half the pencil is gone.</p>
+    </div>
+    <nav class="books" id="books" aria-label="Notebooks"></nav>
+  </header>
+
+  <main>
+    <section class="desk" id="desk">
+      <div class="pad" id="pad">
+        <div class="binding" aria-hidden="true"></div>
+        <div class="sheet" id="sheetWrap">
+          <canvas id="sheet" aria-label="Notepad page"></canvas>
+          <div class="pageno" id="pageno"></div>
+          <div class="blank" id="blank" hidden></div>
+        </div>
+      </div>
+      <canvas id="overlay" aria-hidden="true"></canvas>
+
+      <div class="transport">
+        <div class="progress" aria-hidden="true"><div id="progress"></div></div>
+        <div class="row">
+          <button id="first" title="First page" aria-label="First page">⇤</button>
+          <button id="prev" title="Previous page (←)" aria-label="Previous page">←</button>
+          <label class="pagepick">Page <input id="pageInput" type="number" min="1" value="1" inputmode="numeric"> <span id="pageCount">of 1</span></label>
+          <button id="next" title="Next page (→)" aria-label="Next page">→</button>
+          <button id="last" title="Last page" aria-label="Last page">⇥</button>
+          <span class="gap"></span>
+          <button id="play" class="primary" title="Watch the pencil (space)">▶ Watch the pencil</button>
+          <label class="speed">Speed
+            <select id="speed">
+              <option value="1">1× real time</option>
+              <option value="5">5×</option>
+              <option value="25" selected>25×</option>
+              <option value="100">100×</option>
+              <option value="500">500×</option>
+            </select>
+          </label>
+          <label class="auto"><input type="checkbox" id="autoflip" checked> keep going page after page</label>
+        </div>
+      </div>
+    </section>
+
+    <aside class="side">
+      <section class="gauge">
+        <h2 id="gaugeTitle">The pencil</h2>
+        <canvas id="gauge" aria-hidden="true"></canvas>
+        <dl class="stats">
+          <div><dt>Length</dt><dd id="gLength">–</dd></div>
+          <div><dt>Used</dt><dd id="gUsed">–</dd></div>
+          <div><dt>Tip</dt><dd id="gTip">–</dd></div>
+          <div><dt>Eraser</dt><dd id="gEraser">–</dd></div>
+          <div><dt>Sharpened</dt><dd id="gSharp">–</dd></div>
+        </dl>
+        <div class="tools" id="tools" hidden>
+          <div class="seg" role="group" aria-label="Tool">
+            <button data-tool="pencil" class="on">Pencil</button>
+            <button data-tool="eraser">Eraser</button>
+          </div>
+          <button id="sharpen">Sharpen</button>
+          <label>Pressure <input id="pressure" type="range" min="0.3" max="1.5" step="0.1" value="0.8"></label>
+          <button id="deleteBook" class="quiet">Delete this notebook</button>
+        </div>
+      </section>
+
+      <section class="talk">
+        <h2>How the notepad got filled</h2>
+        <p class="legend"><span class="who w">Writer</span> says what it will put on the page, then does it. <span class="who c">Critic</span> looks at the page and argues for using more pencil.</p>
+        <ol id="transcript"></ol>
+      </section>
+    </aside>
+  </main>
+
+  <div class="toast" id="toast" hidden></div>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
