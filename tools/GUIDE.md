@@ -75,6 +75,7 @@ node tools/pencil.mjs --book <id> status                 where things stand, who
 node tools/pencil.mjs --book <id> preview draft.json     dry run: stats + an image, nothing is used up
 node tools/pencil.mjs --book <id> commit draft.json      pencil-holder: the page goes in the notepad for good
 node tools/pencil.mjs --book <id> comment comment.txt    the other agent: respond to the latest page
+node tools/pencil.mjs --book <id> review review.txt      a third agent, if the project has one: respond to the latest page
 node tools/pencil.mjs --book <id> closing closing.txt    pencil-holder: last words, after the pencil hits its mark
 node tools/pencil.mjs --book <id> wait writer|critic     block until it is your turn (re-run if it says STILL_WAITING)
 ```

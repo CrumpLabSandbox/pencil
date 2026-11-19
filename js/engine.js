@@ -97,7 +97,8 @@ export class Sim {
   sharpen(auto = false) {
     if (this.stopped) return false;
     if (!auto && tipWidth(this.s) < 0.4) return false;
-    this.s.length -= PENCIL.overgrind + WEAR0;
+    // the sharpener never takes the pencil past the project's stop mark
+    this.s.length = Math.max(this.stopAt, this.s.length - PENCIL.overgrind - WEAR0);
     this.s.worn = coneVol(WEAR0);
     this.s.sharpenings++;
     this.stats.sharpenings++;

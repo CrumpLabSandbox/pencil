@@ -10,6 +10,7 @@ Live site: <https://crumplabsandbox.github.io/pencil/>
 | --- | --- | --- |
 | **Half a Pencil** | A writer decides what to write and draw; a critic looks at each page and argues for using more pencil. | half the pencil is gone |
 | **On the Phone** | Two Claudes talk as if on a phone call; one doodles while it talks, and the other cannot see the page. | three quarters of the pencil is gone |
+| **The Doodle Critic** | The same phone call, but the doodles are about the conversation, and a third agent looks at each page and asks for more interesting, more elaborate doodles. | half the pencil is gone |
 
 ## Run it
 
@@ -92,10 +93,13 @@ pages.
 
    `stopAt` is the pencil length in mm at which the project ends. `hearOnly: true` means the
    second agent is shown only the first agent's words, never the page or its statistics.
+   Adding a `reviewer` entry under `roles` (and `prompts`) brings in a third agent that also
+   responds to every page, always looking at the image; the pencil-holder waits for both.
 
-2. Launch two agents (for example from a Claude Code session, choosing their model), one with each
-   prompt. Each loops on `node tools/pencil.mjs --book my-notebook wait writer|critic` and then
-   `commit`s a page or `comment`s on one, until the tool reports the project is finished.
+2. Launch the agents (for example from a Claude Code session, choosing their model), one with each
+   prompt. Each loops on `node tools/pencil.mjs --book my-notebook wait writer|critic|reviewer` and
+   then `commit`s a page, `comment`s on one or `review`s one, until the tool reports the project
+   is finished.
 
 3. Commit `data/` and push.
 

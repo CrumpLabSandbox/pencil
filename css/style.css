@@ -9,6 +9,7 @@
   --panel-line: #ddd4c0;
   --yellow: #f4bd2f;
   --red: #b3261e;
+  --blue: #1f5f99;
   --graphite: #3b3b42;
   --mm: 4px;
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -99,6 +100,7 @@ main { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(320p
 .who { font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; }
 .who.w { color: var(--graphite); }
 .who.c { color: var(--red); }
+.who.r { color: var(--blue); }
 #transcript { list-style: none; margin: 0; padding: 0 12px 24px; }
 #transcript li { border: 1px solid transparent; border-radius: 10px; padding: 8px 8px 10px; margin-bottom: 4px; cursor: pointer; }
 #transcript li:hover { background: rgba(0, 0, 0, 0.035); }
@@ -107,6 +109,7 @@ main { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(320p
 #transcript h3 span { font-weight: 400; margin-left: auto; font-variant-numeric: tabular-nums; }
 .msg { font-size: 14px; line-height: 1.5; padding: 2px 0 2px 10px; border-left: 3px solid var(--graphite); margin: 6px 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .msg.c { border-left-color: var(--red); color: #5e1611; font-family: Georgia, "Iowan Old Style", serif; font-style: italic; }
+.msg.r { border-left-color: var(--blue); color: #123a5e; }
 .msg .who { display: block; font-style: normal; font-family: ui-sans-serif, system-ui, sans-serif; margin-bottom: 1px; }
 .msg.pending { opacity: 0.45; }
 .msg.closing { border-left-style: double; }

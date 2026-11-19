@@ -247,7 +247,8 @@ function renderAbout(b) {
   about.hidden = legend.hidden = b?.kind !== 'agent';
   if (about.hidden) return;
   const pr = b.pr, R = pr.roles, used = PENCIL.length - pr.stopAt;
-  legend.innerHTML = `<span class="who w">${escapeHtml(R.writer.name)}</span> ${escapeHtml(R.writer.does)} <span class="who c">${escapeHtml(R.critic.name)}</span> ${escapeHtml(R.critic.does)}`;
+  legend.innerHTML = `<span class="who w">${escapeHtml(R.writer.name)}</span> ${escapeHtml(R.writer.does)} <span class="who c">${escapeHtml(R.critic.name)}</span> ${escapeHtml(R.critic.does)}`
+    + (R.reviewer ? ` <span class="who r">${escapeHtml(R.reviewer.name)}</span> ${escapeHtml(R.reviewer.does)}` : '');
   const prompts = Object.entries(pr.prompts ?? {}).map(([role, text]) =>
     `<details><summary>The prompt given to ${escapeHtml(R[role]?.name ?? role)}</summary><pre>${escapeHtml(text)}</pre></details>`).join('');
   about.innerHTML = `<h2>${escapeHtml(pr.title)}</h2>
@@ -271,7 +272,8 @@ function renderTranscript() {
     const stats = `${p.stats.strokeM.toFixed(1)} m of line · ${p.stats.used.toFixed(1)} mm of pencil · sharpened ${p.stats.sharpenings}×`;
     li.innerHTML = `<h3>Page ${p.n}<span>${stats}</span></h3>
       <div class="msg w"><span class="who w">${escapeHtml(R.writer.name)}, ${escapeHtml(R.writer.cue)}</span>${escapeHtml(p.writer)}</div>
-      ${p.critic ? `<div class="msg c${p.n === app.page && pending ? ' pending' : ''}"><span class="who c">${escapeHtml(R.critic.name)}, ${escapeHtml(R.critic.cue)}</span>${escapeHtml(p.critic)}</div>` : `<div class="msg c pending"><span class="who c">${escapeHtml(R.critic.name)}</span>…</div>`}`;
+      ${p.critic ? `<div class="msg c${p.n === app.page && pending ? ' pending' : ''}"><span class="who c">${escapeHtml(R.critic.name)}, ${escapeHtml(R.critic.cue)}</span>${escapeHtml(p.critic)}</div>` : `<div class="msg c pending"><span class="who c">${escapeHtml(R.critic.name)}</span>…</div>`}
+      ${!R.reviewer ? '' : p.review ? `<div class="msg r${p.n === app.page && pending ? ' pending' : ''}"><span class="who r">${escapeHtml(R.reviewer.name)}, ${escapeHtml(R.reviewer.cue)}</span>${escapeHtml(p.review)}</div>` : `<div class="msg r pending"><span class="who r">${escapeHtml(R.reviewer.name)}</span>…</div>`}`;
     li.onclick = () => { if (p.n !== app.page) show(app.book, p.n); };
     return li;
   }));

@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 // The notepads' back office: agents fill a notebook through this CLI, two roles taking turns.
-// The "writer" role holds the pencil; the "critic" role responds to each page.
+// The "writer" role holds the pencil; the "critic" role responds to each page. A project may add a
+// third "reviewer" role, which also responds to each page (always looking at the image).
 //   node tools/pencil.mjs init <config.json>                     start a new notebook project
 //   node tools/pencil.mjs --book <id> status
 //   node tools/pencil.mjs --book <id> preview <draft.json>      dry run, renders renders/<id>-preview.png
 //   node tools/pencil.mjs --book <id> commit <draft.json>       writer: put the page in the notepad
 //   node tools/pencil.mjs --book <id> comment <comment.txt>     critic: respond to the latest page
 //   node tools/pencil.mjs --book <id> closing <closing.txt>     writer: last words once the pencil hits its mark
-//   node tools/pencil.mjs --book <id> wait <writer|critic>      block until it is that role's turn
+//   node tools/pencil.mjs --book <id> review <review.txt>       reviewer: respond to the latest page
+//   node tools/pencil.mjs --book <id> wait <writer|critic|reviewer>   block until it is that role's turn
 // --book may be left out while there is only one project (or set PENCIL_BOOK).
 import fs from 'node:fs';
 import path from 'node:path';
@@ -48,11 +50,23 @@ const save = (m) => writeJson(manifestPath(m.id), m);
 
 const allPages = (m) => m.notebooks.flatMap((nb) => nb.pages.map((p) => ({ nb, p })));
 const lastPage = (m) => allPages(m).at(-1);
-function turn(m) {
-  const last = lastPage(m);
-  if (last && !last.p.critic) return 'critic';
-  if (!m.done) return 'writer';
-  return m.closing ? 'done' : 'closing';
+// Who may act now. After a page, the critic and (if the project has one) the reviewer both owe a
+// response, in either order; only then does the pencil-holder go again.
+function pending(m) {
+  const last = lastPage(m), owed = [];
+  if (last && !last.p.critic) owed.push('critic');
+  if (last && m.roles.reviewer && !last.p.review) owed.push('reviewer');
+  if (owed.length) return owed;
+  if (!m.done) return ['writer'];
+  return [m.closing ? 'done' : 'closing'];
+}
+// The turn as one role sees it: its own name when it may act, otherwise how things stand.
+function turn(m, role) {
+  const p = pending(m);
+  if (!role) return p.join(' + ');
+  if (p.includes(role)) return role;
+  if (role !== 'writer' && m.done) return 'done';
+  return p.join(' + ');
 }
 
 function svgOf(sim) {
@@ -112,7 +126,7 @@ function report(m, sim, warnings, before) {
 }
 
 function status(m, role) {
-  const t = turn(m), last = lastPage(m), s = m.pencil, R = m.roles;
+  const t = turn(m, role), last = lastPage(m), s = m.pencil, R = m.roles;
   const blind = role === 'critic' && m.hearOnly; // the second role only hears the first; it never sees the page
   const out = [
     `turn: ${t}`,
@@ -127,8 +141,9 @@ function status(m, role) {
     }
     if (role !== 'writer') out.push(`${R.writer.name} said (page ${p.n}): ${p.writer}`);
     if (p.critic && role !== 'critic') out.push(`${R.critic.name} said (after page ${p.n}): ${p.critic}`);
+    if (p.review && role !== 'reviewer' && !blind) out.push(`${R.reviewer.name} said (about page ${p.n}): ${p.review}`);
   }
-  if (t === 'closing') out.push(`The pencil has reached its stop mark and ${R.critic.name} has had the last reply. ${R.writer.name}: give your closing words with \`closing <file>\`.`);
+  if (t === 'closing') out.push(`The pencil has reached its stop mark and the last replies are in. ${R.writer.name}: give your closing words with \`closing <file>\`.`);
   if (t === 'done') out.push('FINISHED: the notepad is closed.');
   return out.join('\n');
 }
@@ -143,7 +158,10 @@ if (cmd === 'init') {
   if (!(stopAt >= 30 && stopAt < PENCIL.length)) die('stopAt must be between 30 and 175 (mm of pencil left when the project ends)');
   save({
     id: c.id, title: c.title, about: c.about ?? '', stopAt, hearOnly: !!c.hearOnly, models: c.models ?? '', started: c.started ?? new Date().toISOString().slice(0, 10),
-    roles: { writer: { ...DEFAULT_ROLES.writer, ...c.roles?.writer }, critic: { ...DEFAULT_ROLES.critic, ...c.roles?.critic } },
+    roles: {
+      writer: { ...DEFAULT_ROLES.writer, ...c.roles?.writer }, critic: { ...DEFAULT_ROLES.critic, ...c.roles?.critic },
+      ...(c.roles?.reviewer ? { reviewer: { name: 'Reviewer', cue: 'looking at the page', does: 'looks at the page and comments.', ...c.roles.reviewer } } : {})
+    },
     prompts: c.prompts ?? {},
     pencil: newPencil(), done: false, closing: null,
     notebooks: [{ id: 'nb1', title: 'Notebook 1', pages: [] }]
@@ -165,7 +183,7 @@ if (cmd === 'status') {
   const { sim, warnings } = runPage(d.ops, m.pencil, allPages(m).length + 1, { stopAt: m.stopAt });
   console.log(`PREVIEW ONLY (nothing committed)\n${report(m, sim, warnings, m.pencil)}\nimage: ${render(sim, `${m.id}-preview`)}`);
 } else if (cmd === 'commit') {
-  if (turn(m) !== 'writer') die(`not ${m.roles.writer.name}'s turn (turn: ${turn(m)})`);
+  if (turn(m, 'writer') !== 'writer') die(`not ${m.roles.writer.name}'s turn (turn: ${turn(m)})`);
   const d = readDraft(arg);
   let nb = m.notebooks.at(-1);
   if (nb.pages.length >= PAGES_PER_NOTEBOOK) {
@@ -178,29 +196,32 @@ if (cmd === 'status') {
   const stats = { strokeM: st.strokeMm / 1000, graphite: st.graphite, used: before.length - sim.s.length, sharpenings: st.sharpenings, erasedMm2: st.erasedMm2, coverage: sim.coverage(), stopped: sim.stopped };
   fs.mkdirSync(path.join(DATA, m.id, nb.id), { recursive: true });
   fs.writeFileSync(path.join(DATA, m.id, nb.id, `${pad(n)}.json`), JSON.stringify({ notebook: nb.id, page: n, seed, says: d.says.trim(), before, after: sim.s, stats, warnings, ops: d.ops }));
-  nb.pages.push({ n, writer: d.says.trim(), critic: null, stats, before: before.length, after: sim.s.length });
+  nb.pages.push({ n, writer: d.says.trim(), critic: null, ...(m.roles.reviewer ? { review: null } : {}), stats, before: before.length, after: sim.s.length });
   m.pencil = sim.s;
   m.done = sim.stopped;
   save(m);
   console.log(`COMMITTED ${nb.id} page ${n}\n${report(m, sim, warnings, before)}\nimage: ${render(sim, `${m.id}-${nb.id}-${pad(n)}`)}`);
-} else if (cmd === 'comment' || cmd === 'closing') {
-  if (turn(m) !== (cmd === 'comment' ? 'critic' : 'closing')) die(`not time for that (turn: ${turn(m)})`);
+} else if (cmd === 'comment' || cmd === 'review' || cmd === 'closing') {
+  const need = { comment: 'critic', review: 'reviewer', closing: 'closing' }[cmd];
+  if (!pending(m).includes(need)) die(`not time for that (turn: ${turn(m)})`);
   if (!arg || !fs.existsSync(arg)) die('give a text file containing your words');
   const text = fs.readFileSync(arg, 'utf8').trim();
   if (!text) die('the file is empty');
-  if (cmd === 'comment') lastPage(m).p.critic = text; else m.closing = text;
+  if (cmd === 'comment') lastPage(m).p.critic = text; else if (cmd === 'review') lastPage(m).p.review = text; else m.closing = text;
   save(m);
   console.log(`recorded. turn is now: ${turn(m)}`);
 } else if (cmd === 'wait') {
-  if (arg !== 'writer' && arg !== 'critic') die('wait <writer|critic>');
-  const mine = (t) => (arg === 'writer' ? t !== 'critic' : t !== 'writer');
+  if (!['writer', 'critic', 'reviewer'].includes(arg)) die('wait <writer|critic|reviewer>');
+  if (arg === 'reviewer' && !m.roles.reviewer) die('this project has no reviewer role');
+  // a role wakes when it may act; the pencil-holder also wakes for its closing words, the others when it is all over
+  const mine = (t) => t === arg || t === 'done' || (arg === 'writer' && t === 'closing');
   const deadline = Date.now() + 9 * 60 * 1000;
   for (;;) {
     const cur = load(bookId);
-    if (mine(turn(cur))) { console.log(status(cur, arg)); break; }
+    if (mine(turn(cur, arg))) { console.log(status(cur, arg)); break; }
     if (Date.now() > deadline) { console.log('STILL_WAITING: run the same wait command again.'); break; }
     await new Promise((r) => setTimeout(r, 2000));
   }
 } else {
-  die('usage: pencil.mjs [--book <id>] status | preview <draft.json> | commit <draft.json> | comment <file> | closing <file> | wait <writer|critic>   (or: init <config.json>)');
+  die('usage: pencil.mjs [--book <id>] status | preview <draft.json> | commit <draft.json> | comment <file> | review <file> | closing <file> | wait <writer|critic|reviewer>   (or: init <config.json>)');
 }

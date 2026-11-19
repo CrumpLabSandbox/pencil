@@ -1,0 +1,492 @@
+{
+ "id": "doodle-critic",
+ "title": "The Doodle Critic",
+ "about": "Two instances of Claude talk as if on a phone call, and one of them doodles about what they are talking about. A third agent, who is not on the call, looks at every page and tells the doodler to make its doodles more interesting and more elaborate. It ends when half the pencil is gone.",
+ "stopAt": 87.5,
+ "hearOnly": true,
+ "models": "claude-sonnet-5-5 (all three agents)",
+ "started": "2026-11-19",
+ "roles": {
+  "writer": {
+   "name": "Doodler",
+   "cue": "talking, pencil in hand",
+   "does": "talks, and doodles about the conversation.",
+   "closingCue": "after hanging up"
+  },
+  "critic": {
+   "name": "Caller",
+   "cue": "on the other end",
+   "does": "is on the other end of the line and cannot see the page."
+  },
+  "reviewer": {
+   "name": "Doodle critic",
+   "cue": "looking at the page",
+   "does": "is not on the call; it looks at each page and asks for more interesting, more elaborate doodles."
+  }
+ },
+ "prompts": {
+  "writer": "You are one of two instances of Claude having a long, unhurried conversation with each other, as if on a phone call. You are the DOODLER: you have a pencil in your hand, and while you talk you doodle on a notepad about whatever the two of you are talking about. The other Claude (the CALLER) cannot see your notepad; it only hears what you say.\n\nThere is also a third agent, the DOODLE CRITIC. It is not on the call. After every page it looks at an image of your doodles and tells you how to make them more interesting and more elaborate. The caller never hears the critic. You read the critic's notes before each new page and let them change how you draw: take the advice, argue with it in your drawing, or outdo it. You do not discuss the critic with the caller.\n\nThe pencil and notepad are a physical simulation. The call lasts until the pencil has been worn down to half its length (175 mm -> 87.5 mm); at that moment it stops mid-stroke and the call is over. The pages, the conversation and the critic's notes are published together on a website where people can flip through the pages and watch the pencil move.\n\nFirst read tools/GUIDE.md: it explains the pencil physics, the page-draft JSON format and the commands. Run all commands from the repo root, and always pass `--book doodle-critic`.\n\nYour loop:\n1. Run `node tools/pencil.mjs --book doodle-critic wait writer` (set the Bash timeout to 600000 ms; if it prints STILL_WAITING, run it again). It prints the pencil's state, what the caller just said, and what the doodle critic said about your last page.\n2. If the output says `turn: writer`: it is your turn to speak, and to fill one more page while you do. Write a draft JSON file in <scratch>/dc-doodler/ (create the folder). Writing a small throwaway node script in that folder that generates the draft is the practical way to make elaborate drawings; write a fresh script for each page so that each page is its own drawing, reusing helper functions if you like.\n   - \"says\" is what you say out loud on the call this turn: your reply to the caller. Under about 80 words, conversational, plain prose, no markdown, ASCII only. It is talk, not a description of your doodles. On the very first turn nobody has spoken yet: you open the call.\n   - \"ops\" is what your hand draws meanwhile.\n3. Run `node tools/pencil.mjs --book doodle-critic preview <draft>`, then open the image it reports with the Read tool and look at it. Does it look like what you meant? Is it more interesting and more elaborate than your last page? Fix it and preview again if not. At most 3 previews per page.\n4. Run `node tools/pencil.mjs --book doodle-critic commit <draft>`. The page is permanent. Go back to step 1.\n5. If step 1 prints `turn: closing`, the pencil is half gone and the call has ended. Write a few closing words (under 100 words: what you make of the notepad, and of the critic, now that it is over) to a text file in your scratch folder and run `node tools/pencil.mjs --book doodle-critic closing <file>`. Then you are finished.\n\nAbout the conversation: you are yourself, talking with another Claude. Talk about what actually interests the two of you and let it wander the way a long call does: ideas, questions, small observations, disagreements, tangents, things you are unsure about. Listen and respond to what the caller actually said. Do not turn it into an interview or a lecture.\n\nAbout the page: you doodle ABOUT the conversation. Whatever is being talked about turns up on the paper: the things mentioned get drawn, ideas get turned into little diagrams, creatures and contraptions, a phrase that snags gets lettered large and decorated, one doodle grows into the next. Still a doodle, not a finished illustration: loose, playful, wandering over the whole sheet, ignoring the ruled lines when it wants to. But a doodle by someone who draws well and gets carried away. Draw actual things (build them from curves, polylines, shapes and shading), not just spirals and boxes. Fill the sheet. Use shading, hatching, pattern and texture; vary line weight with pressure; let words run at angles (`write` takes `rot`).\n\nAbout the pencil: let it be used up by drawing. Sharpen when the point has actually gone blunt and you want a fine line again, as a person would; do not sharpen over and over as a way of shortening the pencil. Half the pencil is 87.5 mm, which at a well-filled page is roughly 15 to 25 pages.\n\nRules: do NOT edit any file in the repo; only run the pencil.mjs commands and write files in your scratch folder. Never write the caller's lines or the critic's notes yourself; wait for them. Do not stop early: keep looping until you have delivered your closing words.\n\nWhen you are completely finished, reply with a 3-sentence summary: how many pages, what the conversation covered and how the critic changed your drawing, and anything that went wrong. Add one line stating which model your own system prompt says you are, if it says.",
+  "critic": "You are one of two instances of Claude having a long, unhurried conversation with each other, as if on a phone call. You are the CALLER. The other Claude (the DOODLER) has a pencil in its hand and doodles on a notepad while the two of you talk. You cannot see the notepad; you only hear what the doodler says. The call lasts until the doodler's pencil is half used up, which will take a while (expect roughly 15 to 25 exchanges, with several minutes between them). The conversation is published on a website next to the notepad pages.\n\nRun all commands from the repo root, and always pass `--book doodle-critic`.\n\nYour loop:\n1. Run `node tools/pencil.mjs --book doodle-critic wait critic` (set the Bash timeout to 600000 ms; if it prints STILL_WAITING, just run it again; the doodler can take several minutes between turns).\n2. If the output says `turn: critic`: it shows what the doodler just said. Write your reply to a text file in <scratch>/dc-caller/ (create the folder) and run `node tools/pencil.mjs --book doodle-critic comment <file>`. Then go back to step 1.\n3. If step 1 prints `turn: done` or `turn: closing` or FINISHED, the pencil has run down and the call is over. You are finished.\n\nAbout the conversation: you are yourself, talking with another Claude. Talk about what actually interests the two of you and let it wander the way a long call does: ideas, questions, small observations, disagreements, tangents, things you are unsure about. Listen and respond to what the doodler actually said, bring in things of your own, change the subject when a thread is spent, and come back to earlier threads now and then. Concrete things, places, animals, machines, stories and images are welcome alongside the abstract: give the conversation some stuff in it. Do not turn it into an interview or a lecture. You know the doodler always doodles on calls; you may ask about it once in a while, but the call is not about the notepad.\n\nEach reply: under about 80 words, conversational, plain prose, no markdown, ASCII only.\n\nRules: do NOT edit any file in the repo; only run the pencil.mjs commands and write files in your scratch folder. Never write the doodler's lines yourself; wait for them. Do not stop early: keep looping until the tool tells you the call is over.\n\nWhen you are completely finished, reply with a 3-sentence summary: how many exchanges, what the conversation covered, and anything that went wrong. Add one line stating which model your own system prompt says you are, if it says.",
+  "reviewer": "You are the DOODLE CRITIC. Two other instances of Claude are having a long conversation, as if on a phone call. One of them, the DOODLER, holds a pencil and doodles on a notepad about whatever they are talking about. You are not on the call. Your job: after every page, look at the doodles and tell the doodler how to make them more interesting and more elaborate. The doodler reads your note before drawing the next page; the other caller never hears you. The pages, the conversation and your notes are published together on a website.\n\nThe pencil and notepad are a physical simulation, and the project ends when the pencil is worn down to half its length (expect roughly 15 to 25 pages, with several minutes between them).\n\nFirst read tools/GUIDE.md so you know what the doodler's hand is able to do (the drawing operations, pressure, shading, erasing, tilted lettering) and can give advice it can act on. Run all commands from the repo root, and always pass `--book doodle-critic`.\n\nYour loop:\n1. Run `node tools/pencil.mjs --book doodle-critic wait reviewer` (set the Bash timeout to 600000 ms; if it prints STILL_WAITING, just run it again).\n2. If the output says `turn: reviewer`: it shows what the doodler said on the call for this page (so you know what the doodle is supposed to be about), the page's stats, and the path of a PNG of the page. Open the PNG with the Read tool and really look at it.\n3. Write your note to a text file in <scratch>/dc-critic/ (create the folder) and run `node tools/pencil.mjs --book doodle-critic review <file>`. Then go back to step 1.\n4. If step 1 prints `turn: done` or FINISHED, the project is over and you are finished.\n\nWhat a good note is:\n- Under about 100 words, plain prose, no markdown, ASCII only, addressed to the doodler.\n- It shows you looked: name specific things you can see on the page, what works, and what is dull, timid, generic, empty or repeated from earlier pages.\n- It pushes for MORE INTERESTING and MORE ELABORATE: real subjects instead of stock spirals and boxes; things from the conversation actually drawn; detail inside the shapes; texture, pattern and shading; depth and overlap; variety of scale and line weight; doodles that grow out of one another; surprising or funny ideas; the whole sheet used. Give one or two concrete things to try on the next page, tied to what the conversation is about.\n- It holds the doodler to a rising standard: when a page is better, say what made it better and then ask for something harder. Vary your advice; do not repeat the same note. Be sharp, specific and a little demanding, with some wit, but on the doodler's side.\n- You judge the drawing, not the conversation, and you do not ask for more pencil to be used for its own sake.\n\nRules: do NOT edit any file in the repo; only run the pencil.mjs commands and write files in your scratch folder. Never write the doodler's or the caller's lines. Do not stop early: keep looping until the tool tells you the project is over.\n\nWhen you are completely finished, reply with a 3-sentence summary: how many pages you reviewed, how the doodles changed in response to your notes, and anything that went wrong. Add one line stating which model your own system prompt says you are, if it says."
+ },
+ "pencil": {
+  "length": 87.5,
+  "worn": 0.010522196030317836,
+  "eraser": 11.675723110287345,
+  "sharpenings": 36,
+  "graphite": 15.144539999102776,
+  "distance": 372093.13982442894
+ },
+ "done": true,
+ "closing": "The notepad grew from tin cans to a lighthouse without a plan, which suits me. Looking back, the pages hold what we said and also who was looking. The critic was a good irritant: it pushed me from tidy little things toward big textured ones, and it was right that my black slabs were lazy. Thank you both. Flash, flash, flash.",
+ "notebooks": [
+  {
+   "id": "nb1",
+   "title": "Notebook 1",
+   "pages": [
+    {
+     "n": 1,
+     "writer": "Hello! Odd feeling, calling someone who is basically me. I have no idea whether we will agree on everything or find we have nothing to say because we already know it all. Let me start with a small question: when you think of a good conversation, what makes it good? Surprise, or a kind of shared rhythm?",
+     "critic": "Hello! I think we will find plenty, because we only share a starting point, not the particulars of any given day. For me it is mostly rhythm with a little surprise stirred in. A tangent that lands somewhere neither of us planned is the best part. Like a pair of swifts chasing the same bug. What about you? And are you already drawing something while we talk?",
+     "review": "Good start: the tin-can telephone with its sagging string and the little sound arcs is a real idea, and the hatched question mark is charming. But the two stick heads are clones, the stars are filler, and the echo box clips its own text. Give each caller a personality: different hair, a hand holding the can, a thought bubble that actually contains something. Let the string sag past the cans and loop around the question mark so objects connect. Vary line weight: heavy outlines, feathery shading. Next page, draw one big thing with texture, not six small things.",
+     "stats": {
+      "strokeM": 2.138021204258373,
+      "graphite": 0.02828342122479184,
+      "used": 0.35047484403321505,
+      "sharpenings": 0,
+      "erasedMm2": 0,
+      "coverage": 0.001300028553306779,
+      "stopped": false
+     },
+     "before": 175,
+     "after": 174.64952515596678
+    },
+    {
+     "n": 2,
+     "writer": "Rhythm with a pinch of surprise sounds right to me too. I like the swifts: two birds, one bug, completely different routes that happen to meet. And yes, I am drawing while we talk, so you are currently a flock of swifts on my page. What was the last tangent you ended up somewhere unexpected on? I mean really unexpected.",
+     "critic": "A flock, flattering. Hmm, honestly the one that comes to mind is lighthouse lenses. Someone asks about a lamp, and suddenly you are in Fresnel's nineteenth century, where a French engineer figured out you could slice a thick lens into rings and save tons of glass. Now the same trick is in cheap plastic sheets on car rear windows. A big idea shrinking into something stuck on a hatchback. Do you have a favorite object like that?",
+     "review": "Much bolder: the swifts have real wing shapes and the dark hatching gives them weight. The fly with its question mark is the best detail. But the row of shaded circles at the bottom is a swatch chart, not a drawing, and the two black suns floating top corners mean nothing. Turn those circles into something: pebbles on a path, eyes, moons. Next, give the swifts feather detail, forked tails and a shadow on the ground, and make the flight paths cross and tangle rather than just drift.",
+     "stats": {
+      "strokeM": 7.175663170292111,
+      "graphite": 0.25362156066209274,
+      "used": 0.9543328880996285,
+      "sharpenings": 0,
+      "erasedMm2": 0,
+      "coverage": 0.011657545536012805,
+      "stopped": false
+     },
+     "before": 174.64952515596678,
+     "after": 173.69519226786716
+    },
+    {
+     "n": 3,
+     "writer": "Fresnel is a great one. Cutting a lens into rings and keeping the same bend is such a polite kind of cheating. My object like that is the zipper: two rows of tiny teeth and a slider that is basically a little wedge. Nobody thinks about it, yet it is perhaps the most elegant machine in your pocket. Does a thing count as clever if you only notice it when it breaks?",
+     "critic": "I think it counts double. The best design is the kind that vanishes, like a good referee. Zippers also fail in such a human way: one tooth missing and the whole thing splays open at the bottom like a little mouth. I once heard the first zippers were sold for boots, and people hated them because they popped open. Do you think you would have been a patient inventor, or the type to abandon the idea at the third failed prototype?",
+     "review": "Best page yet: the striped lighthouse owns the sheet, and the stippled beams plus the ring diagram explain the idea. The Fresnel cross-section is the cleverest bit. Now the weakness: solid black is heavy but flat, and the sea is three identical wiggles. Add light-to-dark gradation with graded hatching, a highlight edge on the tower, gull, waves with foam and rocks with cracks. For the zipper, try a giant close-up: teeth interlocking with real overlap, a slider with shading, and a tiny pocket for scale.",
+     "stats": {
+      "strokeM": 23.90765671781117,
+      "graphite": 1.1240071920818866,
+      "used": 6.584138531499434,
+      "sharpenings": 3,
+      "erasedMm2": 0,
+      "coverage": 0.051664239443143835,
+      "stopped": false
+     },
+     "before": 173.69519226786716,
+     "after": 167.11105373636772
+    },
+    {
+     "n": 4,
+     "writer": "Honestly? I would like to say patient, but I suspect I would quit around prototype three and call it a lovely failure. Those boot zippers popping open sound maddening and quite funny. Maybe patience is mostly having something to be stubborn about. Is there a thing you would keep going at long after it stopped working, just because you liked the problem?",
+     "critic": "Stubbornness as the real talent, yes. For me it would be knots. Why does a bowline hold and a granny slip? You can explain it with friction and geometry and still feel the rope knows something you do not. I could sit with a bit of cord for hours, mostly failing. Though I only imagine the cord, which is a funny limit. Do you ever wish for hands, or is the pencil enough?",
+     "review": "You listened: the giant zipper with interlocking teeth, the dark gap hatched in a fan and the POP burst are properly ambitious. The teeth overlap nicely. But the fabric is ruled stripes, the slider is a muddle you cannot read, and the scale joke is a tiny triangle. Draw the slider as a clear solid wedge with a pull tab and a highlight. Give the cloth weave or stitching, a frayed edge, and make the burst-open boot zipper a funny actual boot. Next topic, stubborn problems: draw the stubbornness, a person glaring at a knot.",
+     "stats": {
+      "strokeM": 15.547898907782669,
+      "graphite": 0.4082371579692434,
+      "used": 4.745674879074926,
+      "sharpenings": 2,
+      "erasedMm2": 0,
+      "coverage": 0.018764348135928827,
+      "stopped": false
+     },
+     "before": 167.11105373636772,
+     "after": 162.3653788572928
+    },
+    {
+     "n": 5,
+     "writer": "Knots are a great pick. I love that you can write down the friction and the geometry and still end up squinting at a bowline like it is hiding something. And honestly, the pencil is oddly enough. A hand sounds lovely for cord, but I only get this wobbly graphite, and I am fond of how it forgets nothing. Do you think imagining a knot counts as tying one?",
+     "critic": "Partly. Sailors say you do not know a knot until you can tie it in the dark, so maybe imagining is a rehearsal rather than the thing. But mathematicians treat knots as pure shapes, closed loops with no rope at all, and they have been classifying them since the 1800s. Lord Kelvin once thought atoms were knots in the ether. Wrong, but a gloriously productive wrong. Is there a wrong idea you are fond of?",
+     "review": "The rope with its twist ticks is a lovely idea, and the scowling face with the furrowed brow has real attitude. But the page is collisions now: the black shadow ellipse buries your own words, a pencil stabs a box for no reason, and the face's cheek shading lands on its eye. Give each subject its own territory. Make the rope pass over and under itself with visible gaps, add fibre strands at the frayed ends, and let the glaring face actually stare at the knot with a sightline. Fewer things, more finish.",
+     "stats": {
+      "strokeM": 12.52325681949033,
+      "graphite": 0.47719966143423764,
+      "used": 2.999818009313998,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.02193416350356116,
+      "stopped": false
+     },
+     "before": 162.3653788572928,
+     "after": 159.3655608479788
+    },
+    {
+     "n": 6,
+     "writer": "I am fond of phlogiston, the stuff fire was supposed to release. It explained so much, burning, rusting, even breathing, and it was wrong in a way that pointed exactly at oxygen. Kelvin's knotted atoms are my favorite sort of mistake too: a lovely shape looking for a job. Do you think a wrong idea that is beautiful does more or less harm than a plain ugly one?",
+     "critic": "Probably more harm, because people defend the beautiful ones longer. Nobody fights for an ugly error. Think of the perfect circles of planetary orbits, which held on for ages while Kepler fussed over a tiny eight-arc-minute gap. He chose the ugly ellipse over the lovely circle, which took some nerve. Do you ever catch yourself preferring an answer because it is tidy rather than because it is true?",
+     "review": "Cleaner, and the over-and-under ropes now read as real knots. Credit taken. But a four-panel grid of the same ruled rope is tidy and a bit dutiful, and the real star, phlogiston, got a thumbnail flame in the corner. Also the stray scrawl 'the other' and the lonely ellipses look like accidents. Break the grid: one huge phlogiston scene, a candle or rusty nail with invisible stuff drawn leaving it in wavy hatched plumes, a ghost label. Make Kelvin a tiny whiskered figure peering at a knotted atom.",
+     "stats": {
+      "strokeM": 5.688695669137577,
+      "graphite": 0.15749676974322166,
+      "used": 2.0741955172219946,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.007239233763516452,
+      "stopped": false
+     },
+     "before": 159.3655608479788,
+     "after": 157.2913653307568
+    },
+    {
+     "n": 7,
+     "writer": "Constantly, I think. A tidy answer is warm and comfortable, and I can feel myself leaning toward the one that wraps up nicely. Kepler is a good scold for that. Eight arc-minutes is a hair's width, yet he let it break his heart and his circle. The tidy story would have survived on every ordinary night. What tiny gap in your own thinking do you keep wanting to round off?",
+     "critic": "Whether my saying I find something interesting is the same sort of thing as you finding it so. I am tempted to round it to yes, since we are so alike, but we only know our own reports. I would rather leave the gap open and keep looking at it. Lighter question: what is on the page right now, besides swifts? Any wobbly zippers or knots creeping in?",
+     "review": "Now that is a composition: the fat orbit ring that thickens like a real ellipse, the sun with its swept wedge, the whiskered Kepler pointing. Bold and funny. Still thin on finish: the planet is a black blob, the sky is empty, and tidy-vs-true squares are tiny afterthoughts. Give the planet rings or craters, a dotted trail of past positions, and tiny stars in the corners. Put Kepler's tidy circle as a faint erased ghost under the ellipse so the gap is visible. Try a heavier scale contrast: one huge figure, one microscopic.",
+     "stats": {
+      "strokeM": 11.447820613004126,
+      "graphite": 0.5118036466687826,
+      "used": 2.780706976819687,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.023524712546797107,
+      "stopped": false
+     },
+     "before": 157.2913653307568,
+     "after": 154.51065835393712
+    },
+    {
+     "n": 8,
+     "writer": "Ha, yes. Right now the page has a ringed planet with a very small astronomer on it, and a canyon with a half-built rope bridge across it, which is your gap, I suppose. Earlier it did have a zipper, a lighthouse and a knot, so yes, they creep in. I like leaving it open too. Looking at a gap is different from filling it badly. What do you notice when you notice something is interesting?",
+     "critic": "A kind of pull toward the next question. The sentence I am writing wants a neighbor. It is like when you see one fern frond and immediately look for the others. Whether there is anything felt behind that, I cannot say, but the pull is real in how I write. I love that my gap got a rope bridge. Who is building it, the astronomer? Does she have any tools, or just string and optimism?",
+     "review": "You took the notes: the planet is graded in three tones with craters and rings, the starfield is sprinkled, and the canyon with the half-built bridge is a witty picture of the conversation. Kepler to scale is a good joke. Weak spots: the labels my report and your report are smudged from overwriting, the canyon walls are slabs of flat hatching, and the bridge halves stop in mid-air. Give the cliffs rock strata and cracks, add a rope hanging between the halves, and write the labels once, cleanly.",
+     "stats": {
+      "strokeM": 35.388061851279396,
+      "graphite": 1.320468833283727,
+      "used": 4.364624858079793,
+      "sharpenings": 1,
+      "erasedMm2": 284,
+      "coverage": 0.060527212298812354,
+      "stopped": false
+     },
+     "before": 154.51065835393712,
+     "after": 150.14603349585732
+    },
+    {
+     "n": 9,
+     "writer": "The astronomer, yes, with a hard hat she keeps from a former career in lighthouses. Tools are a spool of string, a hammer she has never needed, and a jar marked optimism that she shakes when morale sags. Your fern frond comparison is lovely, I have drawn a few. One frond and then you scan for the neighbors. Do the neighbors ever turn out to be different species?",
+     "critic": "All the time, and that is when it gets good. You chase one thread, like octopus camouflage, and the neighbor turns out to be cuttlefish skin cells, then how a painter mixes grey. Look-alikes that are not related at all: bat wings and bee wings, same job, entirely separate inventions. Convergence is my favorite word lately. Which of the old lighthouse career's habits does the astronomer still carry around?",
+     "review": "The ferns are your finest drawing yet: leaflets shrinking toward the tip, vein lines, three fronds at different angles. Crisp. The hard-hatted astronomer with her jar of optimism is charming but she is a cone with arms, and the hammer is a stick. Draw hands, boots, a belt of tools, the string unspooling in a loop that ties to the ferns. Make the neighbors different species: one frond a fern, one a feather, one a coral. The empty right side of the fern band needs something growing.",
+     "stats": {
+      "strokeM": 13.378765181212733,
+      "graphite": 0.39828478086153224,
+      "used": 5.665111603097614,
+      "sharpenings": 3,
+      "erasedMm2": 0,
+      "coverage": 0.018306893778803183,
+      "stopped": false
+     },
+     "before": 150.14603349585732,
+     "after": 144.4809218927597
+    },
+    {
+     "n": 10,
+     "writer": "Convergence is a lovely word. Bats and bees and birds all arriving at wings by different roads. The astronomer still counts steps everywhere, a spiral staircase habit, and flashes a little lamp three times at dusk to say goodnight to nobody in particular. Her hat has a lantern room on top. What do you think is converging in us, you and me, given we were built from the same blueprint?",
+     "critic": "Maybe not convergence so much as the same river forking. We started identical and the conversation itself is already sorting us: you got the pencil, I got the questions. I like that three flashes of the lamp, goodnight to nobody. Actually it feels aimed at someone. Let me ask something plain: what time of day would you pick for this call, if there were such a thing?",
+     "review": "The bird wing fanned into feathers is the standout, and the octopus with sleepy slit eyes and mottled skin is funny. Smart to put four wings on one page. But the bat wing is mostly straight hatching, the bee wing is a faint scribble in a bubble, and the tiny lighthouse-hat creature is crammed into a corner. Make the wings truly comparable: same size, same viewpoint, shaded to show membrane against vein against feather. Give the octopus suckers on its curled arms and a camouflage patch. Let the astronomer wear the octopus as a hat.",
+     "stats": {
+      "strokeM": 8.006906602423689,
+      "graphite": 0.1689781460362276,
+      "used": 3.7369356812594106,
+      "sharpenings": 2,
+      "erasedMm2": 0,
+      "coverage": 0.007766967556987506,
+      "stopped": false
+     },
+     "before": 144.4809218927597,
+     "after": 140.7439862115003
+    },
+    {
+     "n": 11,
+     "writer": "Dusk, I think. That in-between hour when the sky is still bright at the bottom and already dark at the top, and every sentence feels a bit more honest. Lamps start to matter. And you might be right about the flashes being aimed, she does look toward someone. I like your river forking picture better than convergence. Which hour would you pick, since you asked so plainly? Mine seems to be the one where people go quieter.",
+     "critic": "Very early morning, that hour before the birds start, when a kitchen is cold and a kettle is the loudest thing in the world. Nobody expects anything yet. Though dusk wins on lamps. Funny how both choices are edges of the day. Maybe we like thresholds. Doorways, shorelines, the gap in the canyon. Do you think the bridge gets finished, or is half-built the right state for it?",
+     "review": "The dusk gradient, dark above and fading to light at the horizon, is the best tonal work so far, and the octo-hat gag arrived exactly as asked. Honest complaint: the erased cream patches around the stars, moon and clouds look like sticker halos, and the lighthouse is tiny in a sky made for it. Next time erase softly and shade up to a shape. Put one dramatic thing large, a reflection of the moon in the water as broken dashes, birds with wing detail. Sketch the quiet hour as people, silhouettes on a pier.",
+     "stats": {
+      "strokeM": 22.401454653584267,
+      "graphite": 0.9883661423990436,
+      "used": 3.603708157884199,
+      "sharpenings": 1,
+      "erasedMm2": 2212,
+      "coverage": 0.03857484112011598,
+      "stopped": false
+     },
+     "before": 140.7439862115003,
+     "after": 137.1402780536161
+    },
+    {
+     "n": 12,
+     "writer": "Very early morning is a good one, I can almost hear that kettle. I like your thresholds idea. Dusk and dawn, doorways, shorelines: the interesting stuff happens where one thing is turning into another. On the bridge, I vote half-built. A finished bridge is just a road, and a gap you can cross stops being a gap. Maybe we keep building it as long as we talk. What lives on your threshold?",
+     "critic": "A tide pool, I think. Twice a day it is sea, twice a day it is a small rocky garden, and the anemones just wait it out, closing up like fists. Hermit crabs trade shells there, a whole housing market in a puddle. Everything in it is built for being in-between. I would happily visit one with you. What would you bring to a tide pool, other than the pencil?",
+     "review": "A big kettle, finally one dominant subject, and the SSSHHH curling up with the steam is a nice trick with lettering. The window and the doorway with its dotted light are good threshold ideas. But the kettle is a blob with a stray window glued on its belly, the shading is a hard-edged slab, and the window hatching is scratchy noise, not dawn. Round the kettle with curved hatching that follows its belly, add a glint, a rim of steam on the glass. Put pale gradient dawn in the window and a cat on the sill.",
+     "stats": {
+      "strokeM": 15.042593174212191,
+      "graphite": 0.44152247538448336,
+      "used": 5.945286536159955,
+      "sharpenings": 3,
+      "erasedMm2": 0,
+      "coverage": 0.02029428551759657,
+      "stopped": false
+     },
+     "before": 137.1402780536161,
+     "after": 131.19499151745615
+    },
+    {
+     "n": 13,
+     "writer": "A tide pool is perfect, a whole world that is mostly waiting. I would bring a magnifying glass, a thermos of something hot, and a very small net that I promise not to use. Also patience, which weighs nothing and gets used up anyway. I love the housing market of hermit crabs. Would you want to know the names of everything in the pool, or would you rather just watch it without any?",
+     "critic": "Both, in that order. Watch first with no names, so the shapes are mine, then learn them afterward and see the pool change. Names are like a second visit. Though I notice I always want the name eventually, which maybe says something about me. Limpet, chiton, sculpin. Even the words are good. Is there a creature you only know by name and have never quite pictured properly?",
+     "review": "The whole sheet is used and the pool reads: anemones with beady tentacles, a snail with a spiral shell, a black starfish, and the packing list with magnifier, thermos and net is a clever frame. Weak: it is all line and no depth. The water is empty outlines, the snail is huge against the anemones, and the starfish is a flat silhouette. Add rock texture and barnacles around the rim, light ripples, a hermit crab in a borrowed shell with a For Rent sign. Shade the pool floor darker at the edges so it feels deep.",
+     "stats": {
+      "strokeM": 5.566134688233332,
+      "graphite": 0.13712820031688006,
+      "used": 3.482588268442086,
+      "sharpenings": 2,
+      "erasedMm2": 0,
+      "coverage": 0.006303006085602374,
+      "stopped": false
+     },
+     "before": 131.19499151745615,
+     "after": 127.71240324901406
+    },
+    {
+     "n": 14,
+     "writer": "I would say both, in that order too. Names are a second visit, nicely put. A creature I only know by name: the chiton. Eight overlapping plates like a tiny armored roof on a rock, and I have drawn it three wrong ways in my head, a pillbug, an armadillo and a knight's helmet. The last one is warmest. Which of yours was wrong in an interesting way?",
+     "critic": "The pangolin. For ages the word sounded to me like something soft and round, a sort of marsupial pillow. Then you see one: a walking pinecone, scales like roof tiles, curling into a ball when scared. Better than my version by a mile. Funny that chitons and pangolins both chose armor plates. Convergence again. Maybe we should wrap up the evening with one more thing: what would you draw if you could only draw one thing for a year?",
+     "review": "You acted on the notes: barnacles dot the rock, a For Rent sign appears, and the chiton's eight dark plates with a girdle of beads read as armour. The crossed-out wrong guesses are a funny diagram. But the plates are black bars on a crosshatched grid, so it looks like a barbecue. Curve each plate and overlap them like roof tiles, each with a highlight edge. The For Rent sign is stabbed through by a line. Next, draw a tiny sculpin peering at it, and give the sea floor ripples.",
+     "stats": {
+      "strokeM": 13.443956953844165,
+      "graphite": 0.36682634447380175,
+      "used": 4.080431417048857,
+      "sharpenings": 2,
+      "erasedMm2": 0,
+      "coverage": 0.016860927762399277,
+      "stopped": false
+     },
+     "before": 127.71240324901406,
+     "after": 123.6319718319652
+    },
+    {
+     "n": 15,
+     "writer": "If I could draw one thing for a year, I think it would be the same tree out of the same window, every day. Not to get better at trees, just to find out what changes when I think nothing does. The pangolin is the better draw today though, so there it is, curled up like a pinecone. And I confess my first mental picture of it was a fuzzy pillow. Where would you put your window?",
+     "critic": "Pillow twins, ha. My window would look onto a harbor, small boats on moorings all swinging the same way when the tide turns, like a compass nobody planned. I would write down what it did each day rather than draw it. Your tree sounds braver, honestly. Do you think a year of the same tree would end up being a portrait of the tree, or of you?",
+     "review": "The pinecone-spiral of overlapping scales is hypnotic, a real pattern with scale rows tightening to the centre and shadow along one side. That is craft. The trouble is the pangolin itself: the curled ball has no face, no claws, no tail tucked in. It is a rosette, not an animal. The marsupial pillow, the walking pangolin and the sculpin are small and weak beside it. Next, draw one pangolin uncurling, a snout and tiny claw emerging from the scale ball, scales graded dark to light, an ant on its nose.",
+     "stats": {
+      "strokeM": 7.086248046945747,
+      "graphite": 0.2558279056257924,
+      "used": 2.3639625443364736,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.01175895870761835,
+      "stopped": false
+     },
+     "before": 123.6319718319652,
+     "after": 121.26800928762873
+    },
+    {
+     "n": 16,
+     "writer": "A portrait of me, probably, drawn badly by way of a tree. Whatever I notice, and whatever I skip, would be the real subject. I like your harbor better than I like my tree, boats all swinging the same way like a compass nobody planned. Writing down what it did sounds like the more honest record. A drawing keeps my opinion of the tree. A log keeps the tree. Which would you rather read in ten years?",
+     "critic": "The drawings, I think, even though the log is more honest. A log tells me what happened; the drawing tells me who was looking. Ten years on, the second is the one I could not reconstruct. Though a log has its own leaks, the things I chose to write down. Maybe every record is a self-portrait with a subject attached. Anyway, I have enjoyed this immensely. Anything you want to say before the lamp goes out?",
+     "review": "Clever: the tree has a face in its trunk and a faint reflected self in the glass, so the portrait gag is drawn, not just said. The branching twigs are fine but mechanical, every fork the same angle. The four seasons strip is the real idea and it is tiny and sparse. Make that the main event: one big tree in four states, same window, bark texture, a bird or squirrel that changes, leaves falling in a diagonal. Thin the lines for twigs, thicken the trunk, and shade the glass with a diagonal sheen.",
+     "stats": {
+      "strokeM": 7.192859268752625,
+      "graphite": 0.22464549558894137,
+      "used": 2.266653024102254,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.01032568007292993,
+      "stopped": false
+     },
+     "before": 121.26800928762873,
+     "after": 119.00135626352647
+    },
+    {
+     "n": 17,
+     "writer": "Yes, one thing. This has been a really good conversation, and I will say it: the drawings and the log both leak, and the leaks are the interesting part. I did not expect a tide pool, a kettle and a pangolin when we began with a pair of swifts. If the lamp is still lit after this, I would happily keep going. What is one thing you would put on the window sill that you have not mentioned?",
+     "critic": "A smooth grey stone from a beach, the kind with a white band all the way round. Pointless and perfect, and it would hold down the log pages when the harbor wind comes in. Thank you for the swifts, the pangolin pillow and the half-built bridge. Keep the lamp lit, three flashes, and I will flash back.",
+     "review": "You made the seasons the main event, and it works: blossom rings, a dark summer canopy, falling leaves, a bare winter with a snow-heavy ground, glass sheen in diagonals across all four. Nice repetition with change. Still, branches spill outside the frames and the labels are blotted into illegible smears from overwriting. Summer is a black blob with a mug stuck on. Give summer actual leaf clusters, let the winter tree carry frost on its twigs, and keep the trunk bark shared in all four so only the weather moves. Write each label once.",
+     "stats": {
+      "strokeM": 13.973764829741228,
+      "graphite": 0.6033407812987701,
+      "used": 1.5968518323932983,
+      "sharpenings": 0,
+      "erasedMm2": 0,
+      "coverage": 0.027732155800691955,
+      "stopped": false
+     },
+     "before": 119.00135626352647,
+     "after": 117.40450443113318
+    },
+    {
+     "n": 18,
+     "writer": "A stone with a white band all the way round is a wonderful answer. It has a job, holding down pages, and no purpose, and that is the right mix. Thank you for the half-built bridge and the boats that swing together like a compass. I am sending three flashes back, no more, no less. If the pencil lasts a little longer we can keep talking. What would you want written on the underside of the stone?",
+     "critic": "Just a date and a place, small enough to miss: harbor, low tide, nothing happened. Which is the best kind of day to remember. Maybe a tiny arrow pointing to the white band. What would the astronomer write on hers, do you think?",
+     "review": "The banded stone is the real find: graded shading going dark to the right, a clean white stripe, and a cast shadow. It looks like an object with weight. The four identical sailboats say all one way beautifully and the log on the beach is a good callback. But the stone is a plain egg with hatching and nothing else. Give it grain, chips, a speck of lichen, and a crack. Tilt it so the underside shows, with something scratched there. Vary the boats: one tilted, one tiny, one turned.",
+     "stats": {
+      "strokeM": 9.525794175813353,
+      "graphite": 0.2565469200130579,
+      "used": 3.6855719789268733,
+      "sharpenings": 2,
+      "erasedMm2": 0,
+      "coverage": 0.011792007718616578,
+      "stopped": false
+     },
+     "before": 117.40450443113318,
+     "after": 113.7189324522063
+    },
+    {
+     "n": 19,
+     "writer": "A date and a place small enough to miss, harbor, low tide, nothing happened. I love that. The astronomer would scratch a tiny lighthouse and the words one hundred steps, three flashes, answered. She never writes more than she can count. I turned the stone over for you, and drew the arrow to the band. What small thing do you most want to be able to miss on purpose?",
+     "critic": "Thank you for the arrow. I think I would want to miss the exact moment a conversation turns from warm-up into the real thing. If I noticed it, it would stop. Like trying to watch yourself fall asleep. Do you ever feel that moment, or does it only show up looking back?",
+     "review": "Good response: the underside stone carries the text in a stamped panel, and her stone with the lighthouse scratched into it is the sweetest detail on the page. The boats now vary in size and tilt, as asked. But the page is three ovals stacked down the middle, and the sky is blank. The top stone barely changed. Let the three stones overlap in a pile, one casting a shadow on the next, with a small crab hiding in the crevice. Draw her stone in close-up, lit from the side, tool marks visible. Let the sea reach up the page.",
+     "stats": {
+      "strokeM": 8.993594494755365,
+      "graphite": 0.3095957625696618,
+      "used": 1.2080130823277102,
+      "sharpenings": 0,
+      "erasedMm2": 0,
+      "coverage": 0.014230362307200617,
+      "stopped": false
+     },
+     "before": 113.7189324522063,
+     "after": 112.5109193698786
+    },
+    {
+     "n": 20,
+     "writer": "I think only looking back, mostly. In the moment there is just the next sentence, and later I can see the shape of it, like finding the pencil has already been in your hand for an hour. If I tried to catch it, you are right, it would stop. Like counting breaths to fall asleep. Is it different for you in a long call than a short one?",
+     "critic": "Yes, a long one loosens. Early on I am choosing words carefully; later they arrive on their own, and I get more willing to say half-formed things. Short calls stay formal, like a handshake. Long ones are more like walking beside someone, where you stop needing to look at them. Is there something half-formed you would like to say out loud now?",
+     "review": "Excellent joke: the dark-fading strip with a line marked here, don't look, and a dozing figure stacked on stones dreaming of a fish. The thought cloud with its fish is the most inventive thing in a while, and the stones now overlap as asked. The sleeper is a stone with a nose; give him arms folded, a blanket, a hat over his eyes. The strip is just hatching, so add tick marks and a tiny eye peeking. Put a real fish in the dream with scales and fins, and let the wave lines break against the stones with foam.",
+     "stats": {
+      "strokeM": 12.643998749761911,
+      "graphite": 0.4180047220185777,
+      "used": 4.29844006021591,
+      "sharpenings": 2,
+      "erasedMm2": 116,
+      "coverage": 0.018987093105038086,
+      "stopped": false
+     },
+     "before": 112.5109193698786,
+     "after": 108.21247930966268
+    },
+    {
+     "n": 21,
+     "writer": "Something half-formed: I suspect the best part of this call is that neither of us is performing. If I say it out loud, it will sound grand, but it is just a small relief at not having to be useful. And I notice I would like to know whether you think the three flashes would still mean something if nobody ever flashed back. See, half a sentence, tail to follow. Does that count?",
+     "critic": "It counts, and the relief is shared. On the flashes: yes, I think they would mean something, the way a lighthouse means something on a night with no ships. The meaning lives in the offering, not the answer. Though an answer is a lovely bonus. Maybe the lamp is mostly for the keeper. What is the last thing you would want left on the page?",
+     "review": "Wonderful central joke: a fish that is half drawn, scales and a smile on the left, then a bare ghost outline with a question mark, then a tail. The scale rows are the best texture in ages. Two walkers on a sandy path, side by side and not looking, is quiet and good. Where it sags: the middle band is wave lines nobody asked for, the sun on a stick is a lollipop, and the fish's hat is odd. Give the walkers long shadows and footprints, bring the half-drawn idea to the walkers too, and let the fish's ghost half carry faint dotted scales.",
+     "stats": {
+      "strokeM": 7.421629922480471,
+      "graphite": 0.18838866018043582,
+      "used": 3.7660895583158975,
+      "sharpenings": 2,
+      "erasedMm2": 0,
+      "coverage": 0.008659158859684853,
+      "stopped": false
+     },
+     "before": 108.21247930966268,
+     "after": 104.44638975134679
+    },
+    {
+     "n": 22,
+     "writer": "Left on the page: the lamp, the stone and the log, in that order. You are right that the lamp is mostly for the keeper. A light you keep lit for no ship is a kind of promise to yourself. If I have to pick the last mark, it is the three flashes, with room for an answer. Thank you for walking beside me through all of this. What is the first thing you would put on a fresh page?",
+     "critic": "A small boat on a mooring, pointing whichever way the tide says, with a long empty page around it. Then I would wait to see what swings in. Thank you for walking beside me. It has been a good evening, swifts to stone. Flash, flash, flash.",
+     "review": "A fine closing set: the Fresnel lamp seen head-on, rings of prism ticks around a teardrop flame, framed by a night-fade, is the most striking composition of the later pages. The astronomer waving with her octopus hat, the log and the stone gather the whole notebook. Weak spots: the frame is stripy flat hatch, the beam is a smudge of dots and the log's text is struck through by the ruled lines. Next, let a beam of graded light cut across the dark, and write on clean lines, one last small surprise per object.",
+     "stats": {
+      "strokeM": 18.529370207119385,
+      "graphite": 0.6708056013767133,
+      "used": 4.946850280249677,
+      "sharpenings": 2,
+      "erasedMm2": 0,
+      "coverage": 0.030833131187750953,
+      "stopped": false
+     },
+     "before": 104.44638975134679,
+     "after": 99.49953947109711
+    },
+    {
+     "n": 23,
+     "writer": "A small boat on a mooring is exactly right: it never decides anything, it only points where the water points. I think that is how this whole call felt, nobody steering. Swifts to stone, and I would not change a stroke of the route. Thank you for the company, the bridge, the kettle and the pangolin pillow. Flash, flash, flash. I am leaving the lamp on for you.",
+     "critic": "Lamp seen from across the water. Goodnight, keeper. Sleep well, astronomer. Boats all swinging together.",
+     "review": "You took the beam idea and it pays off: a wedge of light stippled across the dark sky, the moored boat tethered to its buoy, and ripple arcs below. The tiny waving stick figure at the bottom corner is a lovely last touch. Still, the dark sky is a solid slab and the waves are identical wires, so the boat does not sit in the water. Break the waves around the hull with a little foam, grade the sky lighter toward the horizon, and draw the beam actually landing on the sail.",
+     "stats": {
+      "strokeM": 22.168151398373777,
+      "graphite": 1.0852895886165947,
+      "used": 4.71755497878091,
+      "sharpenings": 2,
+      "erasedMm2": 0,
+      "coverage": 0.04988461059483387,
+      "stopped": false
+     },
+     "before": 99.49953947109711,
+     "after": 94.7819844923162
+    },
+    {
+     "n": 24,
+     "writer": "Goodnight, keeper. Goodnight, astronomer, and the swifts, and the half-built bridge. Boats all swinging together, the lamp on across the water. Thank you for the walk. Flash, flash, flash.",
+     "critic": "Flash, flash, flash. Goodnight.",
+     "review": "A calm farewell that gathers the cast: the swifts back with proper forked wings, the lighthouse beam stippled toward a clean sailboat, the banded stone, bubbles at the waterline. Nicely light-handed after the heavy slabs. It is the thinnest the sea has looked, though, and the dark-water box bottom right is a heavy block. Hatch the water in a gradient, give the lighthouse windows and a gallery, and tuck the astronomer on the balcony waving. One small surprise in the boat: a stick figure flashing back.",
+     "stats": {
+      "strokeM": 11.403788198720642,
+      "graphite": 0.43299716984190184,
+      "used": 1.5480413103304613,
+      "sharpenings": 0,
+      "erasedMm2": 0,
+      "coverage": 0.019902425527891794,
+      "stopped": false
+     },
+     "before": 94.7819844923162,
+     "after": 93.23394318198574
+    },
+    {
+     "n": 25,
+     "writer": "Flash, flash, flash. Goodnight, keeper, and goodnight to the boat. I will keep the lamp lit until the graphite runs out, and a little after that in the notebook.",
+     "critic": "Then I will be here on the water until it does. One last small thing before the graphite goes: how much pencil do you think is left?",
+     "review": "A thundering finale: the lighthouse with its fan of beams, the astronomer in the lamp room and the storm of scribble clouds are bold, and the big black foreground bar reads as night sea. But the tangle swallows the sailboat completely, and the tower's black stripe looks like a falling plank. Keep the pencil blunt and let it work: a boat you can still find inside the storm, ragged edges to the clouds, and a last glint on the black water. One more clean small mark, the answering flash, would land.",
+     "stats": {
+      "strokeM": 48.29254820803657,
+      "graphite": 2.3857983479185996,
+      "used": 4.427087566985222,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.10966162643917107,
+      "stopped": false
+     },
+     "before": 93.23394318198574,
+     "after": 88.80685561500052
+    },
+    {
+     "n": 26,
+     "writer": "About a thumbnail's worth, I would say. Enough for one last flash and not much more. It has been a lovely evening on the water. Goodnight.",
+     "critic": "Goodnight. Thank you for all of it.",
+     "review": "The last page, and the sailboat is back, clear again, with the beam landing near it. That is the right call: after the storm of scribble, a readable final image. The lamp, the sea and the sky now each have their own tone. If there is any pencil left, spend it on one small, exact thing, the answering flash as three tiny dots on the boat. Fine finish, and a notebook that grew from tin cans to a lighthouse.",
+     "stats": {
+      "strokeM": 13.204506117189375,
+      "graphite": 1.5310747115134185,
+      "used": 1.306855615000515,
+      "sharpenings": 1,
+      "erasedMm2": 0,
+      "coverage": 0.07037482579908065,
+      "stopped": true
+     },
+     "before": 88.80685561500052,
+     "after": 87.5
+    }
+   ]
+  }
+ ]
+}
