@@ -203,14 +203,25 @@ async function show(book, page, { flip = true, thenPlay = false } = {}) {
 function renderShell() {
   const list = books(), b = list[app.book];
   // notebook tabs
-  const nav = $('#books');
-  nav.replaceChildren(...list.map((bk, i) => {
-    const el = document.createElement('button');
-    el.className = i === app.book ? 'on' : '';
-    el.innerHTML = `${escapeHtml(bk.title)} <small>${bk.kind === 'agent' ? '' : 'yours · '}${bk.count}p</small>`;
-    el.onclick = () => show(i, bk.kind === 'agent' ? 1 : bk.count);
-    return el;
-  }), Object.assign(document.createElement('button'), { textContent: '+ New notebook', title: 'A blank notebook and a fresh pencil of your own', onclick: addNotebook }));
+  // notebook picker: one dropdown, agent-filled notebooks first, then the visitor's own
+  const sel = document.createElement('select');
+  sel.id = 'bookSelect';
+  sel.setAttribute('aria-label', 'Notebook');
+  const group = (label, kind) => {
+    const opts = list.map((bk, i) => [bk, i]).filter(([bk]) => bk.kind === kind).map(([bk, i]) =>
+      Object.assign(document.createElement('option'), { value: i, textContent: `${bk.title} — ${bk.count} page${bk.count === 1 ? '' : 's'}`, selected: i === app.book }));
+    if (!opts.length) return;
+    const og = Object.assign(document.createElement('optgroup'), { label });
+    og.append(...opts);
+    sel.append(og);
+  };
+  group('Filled by agents', 'agent');
+  group('Yours', 'local');
+  sel.onchange = () => { const i = +sel.value, bk = books()[i]; sel.blur(); show(i, bk.kind === 'agent' ? 1 : bk.count); };
+  const label = Object.assign(document.createElement('label'), { textContent: 'Notebook ' });
+  label.append(sel);
+  $('#books').replaceChildren(...(list.length ? [label] : []),
+    Object.assign(document.createElement('button'), { textContent: '+ New notebook', title: 'A blank notebook and a fresh pencil of your own', onclick: addNotebook }));
 
   const local = b?.kind === 'local', count = b?.count ?? 0;
   $('#sheetWrap').classList.toggle('mine', local);
